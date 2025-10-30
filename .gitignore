@@ -11,6 +11,7 @@ zig-out/
 *.dll
 *.exe
 *.wasm
+test_build
 
 # IDE and editor files
 .vscode/
