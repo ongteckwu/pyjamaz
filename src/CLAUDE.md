@@ -910,6 +910,308 @@ pub fn processHot(data: []const u8, buffer: []u8) !Result {
 
 ---
 
-**Last Updated**: 2025-10-28
+## Critical Learnings from Code Review (2025-10-30)
+
+### Image Processing Safety
+
+**LESSON 1: Always Bound File I/O Loops**
+
+When hashing file contents, ALWAYS bound the loop to prevent hangs:
+
+```zig
+// ❌ BAD: Unbounded file read
+while (true) {
+    const bytes_read = try file.read(&buf);
+    if (bytes_read == 0) break;
+    hasher.update(buf[0..bytes_read]);
+}
+
+// ✅ GOOD: Bounded with max size
+const MAX_HASH_SIZE: u64 = 100 * 1024 * 1024; // 100MB
+var total_read: u64 = 0;
+
+while (total_read < MAX_HASH_SIZE) {
+    const bytes_read = try file.read(&buf);
+    if (bytes_read == 0) break;
+    hasher.update(buf[0..bytes_read]);
+    total_read += bytes_read;
+}
+
+std.debug.assert(total_read <= MAX_HASH_SIZE);
+```
+
+**LESSON 2: Validate Image Dimensions at Load Time**
+
+Protect against decompression bombs:
+
+```zig
+// ✅ Validate immediately after load
+const MAX_DIMENSION: u32 = 65535;
+const MAX_PIXELS: u64 = 178_000_000; // ~500 megapixels
+
+const w = wrapper.width();
+const h = wrapper.height();
+
+if (w == 0 or h == 0 or w > MAX_DIMENSION or h > MAX_DIMENSION) {
+    return VipsError.InvalidImage;
+}
+
+const total_pixels: u64 = @as(u64, w) * @as(u64, h);
+if (total_pixels > MAX_PIXELS) {
+    std.log.err("Image too large: {d}x{d} = {d} pixels", .{w, h, total_pixels});
+    return VipsError.InvalidImage;
+}
+```
+
+**LESSON 3: Always Use `defer` for C FFI Cleanup**
+
+libvips memory leaks on error paths are common:
+
+```zig
+// ❌ BAD: Leaks if allocator.alloc fails
+var buffer_ptr: [*c]u8 = null;
+const result = vips_save_buffer(..., &buffer_ptr, ...);
+
+if (result != 0) return error.Failed; // LEAK if buffer_ptr != null
+
+const owned = try allocator.alloc(u8, len); // LEAK if this fails
+g_free(buffer_ptr);
+
+// ✅ GOOD: defer ensures cleanup on all paths
+var buffer_ptr: [*c]u8 = null;
+const result = vips_save_buffer(..., &buffer_ptr, ...);
+
+defer if (buffer_ptr != null) g_free(buffer_ptr);
+
+if (result != 0) return error.Failed; // No leak
+
+const owned = try allocator.alloc(u8, len); // No leak if this fails
+```
+
+**LESSON 4: Validate Encoded Image Magic Numbers**
+
+Always verify codec output:
+
+```zig
+// ✅ Verify JPEG magic number
+pub fn saveAsJPEG(...) ![]u8 {
+    const encoded = try vips_img.saveAsJPEG(allocator, quality);
+
+    // Post-condition: Verify JPEG SOI marker
+    std.debug.assert(encoded.len >= 2);
+    std.debug.assert(encoded[0] == 0xFF and encoded[1] == 0xD8);
+
+    return encoded;
+}
+
+// ✅ Verify PNG signature
+pub fn saveAsPNG(...) ![]u8 {
+    const encoded = try vips_img.saveAsPNG(allocator, compression);
+
+    // Post-condition: Verify PNG signature
+    std.debug.assert(encoded.len >= 8);
+    std.debug.assert(encoded[0] == 0x89); // PNG signature
+    std.debug.assert(encoded[1] == 0x50 and encoded[2] == 0x4E and encoded[3] == 0x47);
+
+    return encoded;
+}
+```
+
+**LESSON 5: Add Loop Invariants to Binary Search**
+
+Binary search needs invariants inside the loop:
+
+```zig
+while (iteration < opts.max_iterations and q_min <= q_max) : (iteration += 1) {
+    // Loop invariants
+    std.debug.assert(q_min <= q_max);
+    std.debug.assert(q_min >= opts.quality_min);
+    std.debug.assert(q_max <= opts.quality_max);
+
+    const q_mid = q_min + (q_max - q_min) / 2;
+    std.debug.assert(q_mid >= q_min and q_mid <= q_max);
+
+    const encoded = try encodeImage(..., q_mid);
+
+    // Invariant: Encoded data is non-empty
+    std.debug.assert(encoded.len > 0);
+
+    // ... search logic ...
+}
+
+// Post-loop assertions
+std.debug.assert(iteration <= opts.max_iterations);
+std.debug.assert(best_quality >= opts.quality_min and best_quality <= opts.quality_max);
+```
+
+**LESSON 6: Warn When Discarding Alpha Channel**
+
+Image optimizers must warn users about lossy transformations:
+
+```zig
+pub fn encodeImage(buffer: *const ImageBuffer, format: ImageFormat, quality: u8) ![]u8 {
+    // Warn if encoding RGBA to format that doesn't support alpha
+    if (buffer.channels == 4 and !formatSupportsAlpha(format)) {
+        std.log.warn("Encoding RGBA image to {s} will drop alpha channel",
+                     .{format.toString()});
+    }
+
+    // ... rest of encoding ...
+}
+```
+
+**LESSON 7: Add Encoding Timeouts**
+
+Protect against malformed images that cause slow encoding:
+
+```zig
+pub const SearchOptions = struct {
+    max_iterations: u8 = 7,
+    max_encode_time_ms: u64 = 5000, // 5 second timeout
+    // ...
+};
+
+while (iteration < opts.max_iterations and q_min <= q_max) : (iteration += 1) {
+    const start_time = std.time.milliTimestamp();
+
+    const encoded = try codecs.encodeImage(...);
+
+    const encode_time = std.time.milliTimestamp() - start_time;
+    if (encode_time > opts.max_encode_time_ms) {
+        std.log.warn("Encoding took {d}ms (>{}ms timeout)",
+                     .{encode_time, opts.max_encode_time_ms});
+    }
+}
+```
+
+### Tiger Style Patterns
+
+**LESSON 8: Minimum 2 Assertions = Pre + Post**
+
+Every function needs at least:
+1. Pre-condition(s) - validate inputs
+2. Post-condition(s) - validate outputs
+
+```zig
+pub fn decodeImage(allocator: Allocator, path: []const u8) !ImageBuffer {
+    // Pre-conditions (2)
+    std.debug.assert(path.len > 0);
+    std.debug.assert(path.len < std.fs.max_path_bytes);
+
+    // ... operations ...
+
+    const buffer = try srgb.toImageBuffer(allocator);
+
+    // Post-conditions (2)
+    std.debug.assert(buffer.width > 0 and buffer.height > 0);
+    std.debug.assert(buffer.data.len == @as(usize, buffer.stride) * @as(usize, buffer.height));
+
+    return buffer;
+}
+```
+
+**LESSON 9: Add Invariants for Multi-Step Operations**
+
+For functions with multiple steps, add invariants between steps:
+
+```zig
+pub fn decodeImage(allocator: Allocator, path: []const u8) !ImageBuffer {
+    std.debug.assert(path.len > 0);
+
+    var img = try vips.loadImage(path);
+    defer img.deinit();
+
+    // Invariant: Loaded image has valid dimensions
+    std.debug.assert(img.width() > 0 and img.width() <= 65535);
+    std.debug.assert(img.height() > 0 and img.height() <= 65535);
+
+    var rotated = try vips.autorot(&img);
+    defer rotated.deinit();
+
+    // Invariant: Rotation preserves validity
+    std.debug.assert(rotated.width() > 0 and rotated.height() > 0);
+
+    var srgb = try vips.toSRGB(&rotated);
+    defer srgb.deinit();
+
+    // Invariant: Color space conversion succeeded
+    std.debug.assert(srgb.interpretation() == .srgb);
+
+    const buffer = try srgb.toImageBuffer(allocator);
+
+    // Post-conditions
+    std.debug.assert(buffer.width > 0 and buffer.height > 0);
+    std.debug.assert(buffer.data.len > 0);
+
+    return buffer;
+}
+```
+
+**LESSON 10: Use Comptime Assertions for Struct Sizes**
+
+Prevent struct bloat with comptime checks:
+
+```zig
+pub const ImageBuffer = struct {
+    data: []u8,
+    width: u32,
+    height: u32,
+    stride: u32,
+    channels: u8,
+    allocator: Allocator,
+    color_space: u8,
+
+    comptime {
+        // Tiger Style: Ensure struct size is reasonable
+        std.debug.assert(@sizeOf(ImageBuffer) <= 64);
+    }
+};
+```
+
+### Common Pitfalls
+
+**PITFALL 1: Silent Alpha Channel Loss**
+
+When encoding RGBA to JPEG, alpha is silently dropped. Always warn:
+
+```zig
+if (buffer.channels == 4 and format == .jpeg) {
+    std.log.warn("Encoding RGBA to JPEG will discard alpha channel", .{});
+}
+```
+
+**PITFALL 2: Forgetting to Free C-Allocated Memory**
+
+libvips uses `g_free()`, not Zig allocator:
+
+```zig
+var buffer_ptr: [*c]u8 = null;
+// ...
+defer if (buffer_ptr != null) g_free(buffer_ptr); // ✅ Must use g_free
+```
+
+**PITFALL 3: Not Checking Empty Encoded Buffers**
+
+Codec failures might return zero-byte buffers:
+
+```zig
+const encoded = try encodeImage(...);
+std.debug.assert(encoded.len > 0); // ✅ Always check
+```
+
+**PITFALL 4: Missing Post-Loop Assertions**
+
+Always verify loop termination:
+
+```zig
+while (iteration < MAX_ITERATIONS) : (iteration += 1) {
+    // ... loop body ...
+}
+std.debug.assert(iteration <= MAX_ITERATIONS); // ✅ Verify bounded
+```
+
+---
+
+**Last Updated**: 2025-10-30
 
 This is a living document - update as you discover better patterns!

@@ -265,3 +265,4 @@ const result = riskyOperation() catch null;
 **Template Version**: 1.0.0
 
 **This is a living template** - improve it as you discover better patterns!
+- whenever finishing a todo task, update docs/TODO.md
