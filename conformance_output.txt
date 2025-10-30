@@ -1,0 +1,347 @@
+DEBUG: Initializing libvips with argv0=pyjamaz
+DEBUG: vips_init returned 0
+DEBUG: libvips initialized successfully
+
+=== Pyjamaz Conformance Tests ===
+
+Testing testdata/conformance/testimages/
+Failed to load image 'testdata/conformance/testimages/lena.png': VipsForeignLoad: "testdata/conformance/testimages/lena.png" is not a known file format
+
+  ❌ FAIL: lena.png - Optimization failed: error.LoadFailed
+Failed to load image 'testdata/conformance/testimages/peppers.png': VipsForeignLoad: "testdata/conformance/testimages/peppers.png" is not a known file format
+
+  ❌ FAIL: peppers.png - Optimization failed: error.LoadFailed
+Failed to load image 'testdata/conformance/testimages/baboon.png': VipsForeignLoad: "testdata/conformance/testimages/baboon.png" is not a known file format
+
+  ❌ FAIL: baboon.png - Optimization failed: error.LoadFailed
+
+Testing testdata/conformance/pngsuite/
+  ❌ FAIL: s39i3p04.png - Output larger than input: 420 → 482 bytes (114.8%)
+  ❌ FAIL: s38i3p04.png - Output larger than input: 357 → 413 bytes (115.7%)
+  ❌ FAIL: s05n3p02.png - Output larger than input: 129 → 299 bytes (231.8%)
+  ❌ FAIL: cs5n2c08.png - Output larger than input: 186 → 361 bytes (194.1%)
+warning: Encoding RGBA image to jpeg will discard alpha channel
+  ❌ FAIL: bgwn6a08.png - Output larger than input: 202 → 983 bytes (486.6%)
+Failed to load image 'testdata/conformance/pngsuite/xc1n0g08.png': pngload: invalid color type
+
+  ❌ FAIL: xc1n0g08.png - Optimization failed: error.LoadFailed
+  ❌ FAIL: basn3p02.png - Output larger than input: 146 → 351 bytes (240.4%)
+warning: Encoding RGBA image to jpeg will discard alpha channel
+  ✅ PASS: bggn4a16.png (2220 → 1137 bytes, 51.2%)
+warning: Encoding RGBA image to jpeg will discard alpha channel
+  ✅ PASS: tbgn3p08.png (1499 → 1335 bytes, 89.1%)
+  ❌ FAIL: basi0g08.png - Output larger than input: 254 → 967 bytes (380.7%)
+warning: Encoding RGBA image to jpeg will discard alpha channel
+  ❌ FAIL: bgbn4a08.png - Output larger than input: 140 → 938 bytes (670.0%)
+warning: Encoding RGBA image to jpeg will discard alpha channel
+  ✅ PASS: basn4a16.png (2206 → 1137 bytes, 51.5%)
+  ❌ FAIL: s04n3p01.png - Output larger than input: 121 → 292 bytes (241.3%)
+  ❌ FAIL: s33i3p04.png - Output larger than input: 385 → 463 bytes (120.3%)
+  ❌ FAIL: s32i3p04.png - Output larger than input: 355 → 426 bytes (120.0%)
+  ❌ FAIL: cm0n0g04.png - Output larger than input: 292 → 595 bytes (203.8%)
+  ❌ FAIL: basn3p01.png - Output larger than input: 112 → 342 bytes (305.4%)
+  ❌ FAIL: basi2c08.png - Output larger than input: 315 → 1025 bytes (325.4%)
+warning: Encoding RGBA image to jpeg will discard alpha channel
+  ✅ PASS: bgyn6a16.png (3453 → 1057 bytes, 30.6%)
+  ✅ PASS: ps1n2c16.png (1620 → 950 bytes, 58.6%)
+  ❌ FAIL: g03n3p04.png - Output larger than input: 214 → 402 bytes (187.9%)
+Failed to load image 'testdata/conformance/pngsuite/xs1n0g01.png': VipsForeignLoad: "testdata/conformance/pngsuite/xs1n0g01.png" is not a known file format
+
+  ❌ FAIL: xs1n0g01.png - Optimization failed: error.LoadFailed
+warning: Encoding RGBA image to jpeg will discard alpha channel
+  ✅ PASS: basn6a16.png (3435 → 1057 bytes, 30.8%)
+  ✅ PASS: ccwn3p08.png (1554 → 1265 bytes, 81.4%)
+  ❌ FAIL: oi1n2c16.png - Output larger than input: 302 → 950 bytes (314.6%)
+  ❌ FAIL: f03n0g08.png - Output larger than input: 389 → 649 bytes (166.8%)
+  ❌ FAIL: f02n0g08.png - Output larger than input: 355 → 654 bytes (184.2%)
+  ❌ FAIL: oi1n0g16.png - Output larger than input: 167 → 941 bytes (563.5%)
+  ❌ FAIL: s06i3p02.png - Output larger than input: 143 → 299 bytes (209.1%)
+warning: Encoding RGBA image to jpeg will discard alpha channel
+  ✅ PASS: tbyn3p08.png (1499 → 1335 bytes, 89.1%)
+  ❌ FAIL: s07i3p02.png - Output larger than input: 149 → 307 bytes (206.0%)
+  ❌ FAIL: cdhn2c08.png - Output larger than input: 344 → 521 bytes (151.5%)
+  ✅ PASS: f03n2c08.png (1291 → 1192 bytes, 92.3%)
+  ✅ PASS: f02n2c08.png (1729 → 1187 bytes, 68.7%)
+  ❌ FAIL: cs8n3p08.png - Output larger than input: 256 → 355 bytes (138.7%)
+  ❌ FAIL: basn3p04.png - Output larger than input: 216 → 368 bytes (170.4%)
+  ❌ FAIL: g04n0g16.png - Output larger than input: 363 → 549 bytes (151.2%)
+  ❌ FAIL: g05n0g16.png - Output larger than input: 339 → 540 bytes (159.3%)
+  ✅ PASS: cthn0g04.png (1269 → 389 bytes, 30.7%)
+  ❌ FAIL: cs3n3p08.png - Output larger than input: 259 → 355 bytes (137.1%)
+warning: Encoding RGBA image to jpeg will discard alpha channel
+  ❌ FAIL: bgai4a08.png - Output larger than input: 214 → 938 bytes (438.3%)
+  ❌ FAIL: xhdn0g08.png - Output larger than input: 138 → 967 bytes (700.7%)
+  ✅ PASS: basi3p08.png (1527 → 708 bytes, 46.4%)
+  ❌ FAIL: g05n3p04.png - Output larger than input: 206 → 394 bytes (191.3%)
+  ❌ FAIL: g04n3p04.png - Output larger than input: 219 → 403 bytes (184.0%)
+Failed to load image 'testdata/conformance/pngsuite/xs7n0g01.png': VipsForeignLoad: "testdata/conformance/pngsuite/xs7n0g01.png" is not a known file format
+
+  ❌ FAIL: xs7n0g01.png - Optimization failed: error.LoadFailed
+warning: Encoding RGBA image to jpeg will discard alpha channel
+  ✅ PASS: bgan6a16.png (3435 → 1057 bytes, 30.8%)
+  ❌ FAIL: f04n0g08.png - Output larger than input: 269 → 647 bytes (240.5%)
+  ❌ FAIL: ct0n0g04.png - Output larger than input: 273 → 595 bytes (217.9%)
+  ✅ PASS: ct1n0g04.png (792 → 595 bytes, 75.1%)
+  ❌ FAIL: f04n2c08.png - Output larger than input: 985 → 1145 bytes (116.2%)
+warning: Encoding RGBA image to jpeg will discard alpha channel
+  ✅ PASS: tbbn2c16.png (2041 → 1318 bytes, 64.6%)
+  ✅ PASS: cten0g04.png (742 → 375 bytes, 50.5%)
+  ❌ FAIL: basn0g01.png - Output larger than input: 164 → 425 bytes (259.1%)
+warning: Encoding RGBA image to jpeg will discard alpha channel
+  ❌ FAIL: tm3n3p02.png - Output larger than input: 116 → 322 bytes (277.6%)
+  ❌ FAIL: g03n0g16.png - Output larger than input: 345 → 539 bytes (156.2%)
+  ❌ FAIL: basn2c16.png - Output larger than input: 302 → 950 bytes (314.6%)
+  ❌ FAIL: s40n3p04.png - Output larger than input: 256 → 438 bytes (171.1%)
+Failed to load image 'testdata/conformance/pngsuite/xdtn0g01.png': pngload: invalid chunk position
+
+  ❌ FAIL: xdtn0g01.png - Optimization failed: error.LoadFailed
+warning: Encoding RGBA image to jpeg will discard alpha channel
+  ❌ FAIL: basi4a08.png - Output larger than input: 214 → 938 bytes (438.3%)
+  ❌ FAIL: cs5n3p08.png - Output larger than input: 271 → 361 bytes (133.2%)
+  ❌ FAIL: s37n3p04.png - Output larger than input: 336 → 459 bytes (136.6%)
+  ❌ FAIL: s36n3p04.png - Output larger than input: 258 → 418 bytes (162.0%)
+  ❌ FAIL: s01i3p01.png - Output larger than input: 113 → 282 bytes (249.6%)
+  ❌ FAIL: xcsn0g01.png - Output larger than input: 164 → 425 bytes (259.1%)
+  ❌ FAIL: g07n2c08.png - Output larger than input: 340 → 565 bytes (166.2%)
+  ❌ FAIL: basn0g02.png - Output larger than input: 104 → 348 bytes (334.6%)
+  ❌ FAIL: basn0g16.png - Output larger than input: 167 → 941 bytes (563.5%)
+warning: Encoding RGBA image to jpeg will discard alpha channel
+  ✅ PASS: tbrn2c08.png (1633 → 1318 bytes, 80.7%)
+warning: Encoding RGBA image to jpeg will discard alpha channel
+  ❌ FAIL: tbbn0g04.png - Output larger than input: 429 → 796 bytes (185.5%)
+  ❌ FAIL: g25n2c08.png - Output larger than input: 405 → 563 bytes (139.0%)
+Failed to load image 'testdata/conformance/pngsuite/xcrn0g04.png': VipsForeignLoad: "testdata/conformance/pngsuite/xcrn0g04.png" is not a known file format
+
+  ❌ FAIL: xcrn0g04.png - Optimization failed: error.LoadFailed
+  ❌ FAIL: PngSuite.png - Output larger than input: 2262 → 6161 bytes (272.4%)
+  ✅ PASS: exif2c08.png (1788 → 1011 bytes, 56.5%)
+warning: Encoding RGBA image to jpeg will discard alpha channel
+  ❌ FAIL: basi6a08.png - Output larger than input: 361 → 983 bytes (272.3%)
+warning: Encoding RGBA image to jpeg will discard alpha channel
+  ✅ PASS: tbwn0g16.png (1313 → 1196 bytes, 91.1%)
+Failed to load image 'testdata/conformance/pngsuite/xd0n2c08.png': pngload: invalid bit depth
+
+  ❌ FAIL: xd0n2c08.png - Optimization failed: error.LoadFailed
+  ❌ FAIL: z03n2c08.png - Output larger than input: 232 → 953 bytes (410.8%)
+  ❌ FAIL: s08n3p02.png - Output larger than input: 139 → 312 bytes (224.5%)
+  ❌ FAIL: s09n3p02.png - Output larger than input: 143 → 315 bytes (220.3%)
+warning: Encoding RGBA image to jpeg will discard alpha channel
+  ❌ FAIL: pp0n6a08.png - Output larger than input: 818 → 1025 bytes (125.3%)
+  ❌ FAIL: cs8n2c08.png - Output larger than input: 149 → 355 bytes (238.3%)
+  ❌ FAIL: f99n0g04.png - Output larger than input: 426 → 547 bytes (128.4%)
+  ✅ PASS: ps2n0g08.png (2320 → 967 bytes, 41.7%)
+  ❌ FAIL: s34i3p04.png - Output larger than input: 349 → 418 bytes (119.8%)
+  ❌ FAIL: s35i3p04.png - Output larger than input: 399 → 470 bytes (117.8%)
+  ✅ PASS: ctzn0g04.png (753 → 595 bytes, 79.0%)
+  ❌ FAIL: s03n3p01.png - Output larger than input: 120 → 290 bytes (241.7%)
+  ❌ FAIL: s02n3p01.png - Output larger than input: 115 → 285 bytes (247.8%)
+  ❌ FAIL: z09n2c08.png - Output larger than input: 224 → 953 bytes (425.4%)
+  ❌ FAIL: g10n2c08.png - Output larger than input: 285 → 564 bytes (197.9%)
+  ❌ FAIL: cm7n0g04.png - Output larger than input: 292 → 595 bytes (203.8%)
+  ✅ PASS: ccwn2c08.png (1514 → 1253 bytes, 82.8%)
+  ❌ FAIL: basn0g04.png - Output larger than input: 145 → 368 bytes (253.8%)
+  ❌ FAIL: g07n0g16.png - Output larger than input: 321 → 544 bytes (169.5%)
+  ❌ FAIL: basi3p01.png - Output larger than input: 132 → 342 bytes (259.1%)
+  ❌ FAIL: basn2c08.png - Output larger than input: 145 → 1025 bytes (706.9%)
+  ✅ PASS: oi9n2c16.png (3038 → 950 bytes, 31.3%)
+warning: Encoding RGBA image to jpeg will discard alpha channel
+  ✅ PASS: basi4a16.png (2855 → 1137 bytes, 39.8%)
+  ❌ FAIL: s04i3p01.png - Output larger than input: 126 → 292 bytes (231.7%)
+  ✅ PASS: ctjn0g04.png (941 → 396 bytes, 42.1%)
+  ❌ FAIL: s33n3p04.png - Output larger than input: 329 → 463 bytes (140.7%)
+  ❌ FAIL: s32n3p04.png - Output larger than input: 263 → 426 bytes (162.0%)
+  ✅ PASS: oi9n0g16.png (1283 → 941 bytes, 73.3%)
+  ❌ FAIL: g03n2c08.png - Output larger than input: 370 → 565 bytes (152.7%)
+  ❌ FAIL: basn0g08.png - Output larger than input: 138 → 967 bytes (700.7%)
+Failed to load image 'testdata/conformance/pngsuite/xs2n0g01.png': VipsForeignLoad: "testdata/conformance/pngsuite/xs2n0g01.png" is not a known file format
+
+  ❌ FAIL: xs2n0g01.png - Optimization failed: error.LoadFailed
+  ❌ FAIL: basi3p02.png - Output larger than input: 193 → 351 bytes (181.9%)
+  ✅ PASS: tp0n2c08.png (1594 → 1364 bytes, 85.6%)
+warning: Encoding RGBA image to jpeg will discard alpha channel
+  ❌ FAIL: bgan6a08.png - Output larger than input: 184 → 983 bytes (534.2%)
+  ❌ FAIL: oi2n2c16.png - Output larger than input: 314 → 950 bytes (302.5%)
+  ❌ FAIL: f00n0g08.png - Output larger than input: 319 → 682 bytes (213.8%)
+  ❌ FAIL: f01n0g08.png - Output larger than input: 321 → 645 bytes (200.9%)
+  ❌ FAIL: s05i3p02.png - Output larger than input: 134 → 299 bytes (223.1%)
+  ❌ FAIL: oi2n0g16.png - Output larger than input: 179 → 941 bytes (525.7%)
+  ✅ PASS: f00n2c08.png (2475 → 1200 bytes, 48.5%)
+  ✅ PASS: f01n2c08.png (1180 → 1148 bytes, 97.3%)
+  ❌ FAIL: s39n3p04.png - Output larger than input: 352 → 482 bytes (136.9%)
+  ❌ FAIL: s38n3p04.png - Output larger than input: 245 → 413 bytes (168.6%)
+  ❌ FAIL: tp0n0g08.png - Output larger than input: 719 → 1239 bytes (172.3%)
+warning: Encoding RGBA image to jpeg will discard alpha channel
+  ✅ PASS: tbgn2c16.png (2041 → 1318 bytes, 64.6%)
+  ❌ FAIL: cdun2c08.png - Output larger than input: 724 → 879 bytes (121.4%)
+Failed to load image 'testdata/conformance/pngsuite/xc9n2c08.png': pngload: invalid color type
+
+  ❌ FAIL: xc9n2c08.png - Optimization failed: error.LoadFailed
+  ❌ FAIL: g10n0g16.png - Output larger than input: 262 → 543 bytes (207.3%)
+  ❌ FAIL: ch1n3p04.png - Output larger than input: 258 → 368 bytes (142.6%)
+  ✅ PASS: ps2n2c16.png (2484 → 950 bytes, 38.2%)
+  ❌ FAIL: basi3p04.png - Output larger than input: 327 → 368 bytes (112.5%)
+  ❌ FAIL: cs3n2c16.png - Output larger than input: 214 → 355 bytes (165.9%)
+  ❌ FAIL: s06n3p02.png - Output larger than input: 131 → 299 bytes (228.2%)
+  ❌ FAIL: s07n3p02.png - Output larger than input: 138 → 307 bytes (222.5%)
+  ❌ FAIL: g25n0g16.png - Output larger than input: 383 → 548 bytes (143.1%)
+  ❌ FAIL: z06n2c08.png - Output larger than input: 224 → 953 bytes (425.4%)
+warning: Encoding RGBA image to jpeg will discard alpha channel
+  ✅ PASS: basi6a16.png (4180 → 1057 bytes, 25.3%)
+  ❌ FAIL: cm9n0g04.png - Output larger than input: 292 → 595 bytes (203.8%)
+  ❌ FAIL: cdsn2c08.png - Output larger than input: 232 → 390 bytes (168.1%)
+warning: Encoding RGBA image to jpeg will discard alpha channel
+  ✅ PASS: tbbn3p08.png (1499 → 1335 bytes, 89.1%)
+  ✅ PASS: ps1n0g08.png (1456 → 967 bytes, 66.4%)
+  ❌ FAIL: basi0g02.png - Output larger than input: 154 → 348 bytes (226.0%)
+  ❌ FAIL: basi0g16.png - Output larger than input: 299 → 941 bytes (314.7%)
+warning: Encoding RGBA image to jpeg will discard alpha channel
+  ❌ FAIL: basn4a08.png - Output larger than input: 126 → 938 bytes (744.4%)
+  ❌ FAIL: s37i3p04.png - Output larger than input: 393 → 459 bytes (116.8%)
+  ❌ FAIL: s36i3p04.png - Output larger than input: 356 → 418 bytes (117.4%)
+  ❌ FAIL: s01n3p01.png - Output larger than input: 113 → 282 bytes (249.6%)
+  ❌ FAIL: s40i3p04.png - Output larger than input: 357 → 438 bytes (122.7%)
+Failed to load image 'testdata/conformance/pngsuite/xd9n2c08.png': pngload: invalid bit depth
+
+  ❌ FAIL: xd9n2c08.png - Optimization failed: error.LoadFailed
+  ❌ FAIL: g25n3p04.png - Output larger than input: 215 → 405 bytes (188.4%)
+warning: Encoding RGBA image to jpeg will discard alpha channel
+  ✅ PASS: tp1n3p08.png (1483 → 1335 bytes, 90.0%)
+  ✅ PASS: tp0n3p08.png (1476 → 1368 bytes, 92.7%)
+  ❌ FAIL: basi2c16.png - Output larger than input: 595 → 950 bytes (159.7%)
+  ✅ PASS: pp0n2c16.png (962 → 950 bytes, 98.8%)
+  ❌ FAIL: basi0g01.png - Output larger than input: 217 → 425 bytes (195.9%)
+  ❌ FAIL: g10n3p04.png - Output larger than input: 214 → 401 bytes (187.4%)
+  ✅ PASS: basn3p08.png (1286 → 708 bytes, 55.1%)
+Failed to load image 'testdata/conformance/pngsuite/xlfn0g04.png': VipsForeignLoad: "testdata/conformance/pngsuite/xlfn0g04.png" is not a known file format
+
+  ❌ FAIL: xlfn0g04.png - Optimization failed: error.LoadFailed
+Failed to load image 'testdata/conformance/pngsuite/xd3n2c08.png': pngload: invalid bit depth
+
+  ❌ FAIL: xd3n2c08.png - Optimization failed: error.LoadFailed
+  ✅ PASS: z00n2c08.png (3172 → 953 bytes, 30.0%)
+  ❌ FAIL: basi0g04.png - Output larger than input: 247 → 368 bytes (149.0%)
+  ❌ FAIL: s34n3p04.png - Output larger than input: 248 → 418 bytes (168.5%)
+  ❌ FAIL: s35n3p04.png - Output larger than input: 338 → 470 bytes (139.1%)
+  ❌ FAIL: s03i3p01.png - Output larger than input: 118 → 290 bytes (245.8%)
+  ❌ FAIL: s02i3p01.png - Output larger than input: 114 → 285 bytes (250.0%)
+  ❌ FAIL: s08i3p02.png - Output larger than input: 149 → 312 bytes (209.4%)
+  ❌ FAIL: s09i3p02.png - Output larger than input: 147 → 315 bytes (214.3%)
+warning: Encoding RGBA image to jpeg will discard alpha channel
+  ✅ PASS: tbwn3p08.png (1496 → 1335 bytes, 89.2%)
+  ❌ FAIL: g05n2c08.png - Output larger than input: 350 → 561 bytes (160.3%)
+  ❌ FAIL: g04n2c08.png - Output larger than input: 377 → 571 bytes (151.5%)
+  ✅ PASS: ch2n3p08.png (1810 → 708 bytes, 39.1%)
+warning: Encoding RGBA image to jpeg will discard alpha channel
+  ✅ PASS: bgai4a16.png (2855 → 1137 bytes, 39.8%)
+  ❌ FAIL: cdfn2c08.png - Output larger than input: 404 → 549 bytes (135.9%)
+warning: Encoding RGBA image to jpeg will discard alpha channel
+  ❌ FAIL: basn6a08.png - Output larger than input: 184 → 983 bytes (534.2%)
+Failed to load image 'testdata/conformance/pngsuite/xs4n0g01.png': VipsForeignLoad: "testdata/conformance/pngsuite/xs4n0g01.png" is not a known file format
+
+  ❌ FAIL: xs4n0g01.png - Optimization failed: error.LoadFailed
+  ❌ FAIL: g07n3p04.png - Output larger than input: 207 → 390 bytes (188.4%)
+  ❌ FAIL: oi4n2c16.png - Output larger than input: 338 → 950 bytes (281.1%)
+  ❌ FAIL: oi4n0g16.png - Output larger than input: 203 → 941 bytes (463.5%)
+  ✅ PASS: ctfn0g04.png (716 → 370 bytes, 51.7%)
+  ✅ PASS: ctgn0g04.png (1182 → 389 bytes, 32.9%)
+
+Testing testdata/conformance/kodak/
+Failed to load image 'testdata/conformance/kodak/kodim11.png': VipsForeignLoad: "testdata/conformance/kodak/kodim11.png" is not a known file format
+
+  ❌ FAIL: kodim11.png - Optimization failed: error.LoadFailed
+Failed to load image 'testdata/conformance/kodak/kodim05.png': VipsForeignLoad: "testdata/conformance/kodak/kodim05.png" is not a known file format
+
+  ❌ FAIL: kodim05.png - Optimization failed: error.LoadFailed
+Failed to load image 'testdata/conformance/kodak/kodim04.png': VipsForeignLoad: "testdata/conformance/kodak/kodim04.png" is not a known file format
+
+  ❌ FAIL: kodim04.png - Optimization failed: error.LoadFailed
+Failed to load image 'testdata/conformance/kodak/kodim10.png': VipsForeignLoad: "testdata/conformance/kodak/kodim10.png" is not a known file format
+
+  ❌ FAIL: kodim10.png - Optimization failed: error.LoadFailed
+Failed to load image 'testdata/conformance/kodak/kodim06.png': VipsForeignLoad: "testdata/conformance/kodak/kodim06.png" is not a known file format
+
+  ❌ FAIL: kodim06.png - Optimization failed: error.LoadFailed
+Failed to load image 'testdata/conformance/kodak/kodim12.png': VipsForeignLoad: "testdata/conformance/kodak/kodim12.png" is not a known file format
+
+  ❌ FAIL: kodim12.png - Optimization failed: error.LoadFailed
+Failed to load image 'testdata/conformance/kodak/kodim13.png': VipsForeignLoad: "testdata/conformance/kodak/kodim13.png" is not a known file format
+
+  ❌ FAIL: kodim13.png - Optimization failed: error.LoadFailed
+Failed to load image 'testdata/conformance/kodak/kodim07.png': VipsForeignLoad: "testdata/conformance/kodak/kodim07.png" is not a known file format
+
+  ❌ FAIL: kodim07.png - Optimization failed: error.LoadFailed
+Failed to load image 'testdata/conformance/kodak/kodim03.png': VipsForeignLoad: "testdata/conformance/kodak/kodim03.png" is not a known file format
+
+  ❌ FAIL: kodim03.png - Optimization failed: error.LoadFailed
+Failed to load image 'testdata/conformance/kodak/kodim17.png': VipsForeignLoad: "testdata/conformance/kodak/kodim17.png" is not a known file format
+
+  ❌ FAIL: kodim17.png - Optimization failed: error.LoadFailed
+Failed to load image 'testdata/conformance/kodak/kodim16.png': VipsForeignLoad: "testdata/conformance/kodak/kodim16.png" is not a known file format
+
+  ❌ FAIL: kodim16.png - Optimization failed: error.LoadFailed
+Failed to load image 'testdata/conformance/kodak/kodim02.png': VipsForeignLoad: "testdata/conformance/kodak/kodim02.png" is not a known file format
+
+  ❌ FAIL: kodim02.png - Optimization failed: error.LoadFailed
+Failed to load image 'testdata/conformance/kodak/kodim14.png': VipsForeignLoad: "testdata/conformance/kodak/kodim14.png" is not a known file format
+
+  ❌ FAIL: kodim14.png - Optimization failed: error.LoadFailed
+Failed to load image 'testdata/conformance/kodak/kodim01.png': VipsForeignLoad: "testdata/conformance/kodak/kodim01.png" is not a known file format
+
+  ❌ FAIL: kodim01.png - Optimization failed: error.LoadFailed
+Failed to load image 'testdata/conformance/kodak/kodim15.png': VipsForeignLoad: "testdata/conformance/kodak/kodim15.png" is not a known file format
+
+  ❌ FAIL: kodim15.png - Optimization failed: error.LoadFailed
+Failed to load image 'testdata/conformance/kodak/kodim24.png': VipsForeignLoad: "testdata/conformance/kodak/kodim24.png" is not a known file format
+
+  ❌ FAIL: kodim24.png - Optimization failed: error.LoadFailed
+Failed to load image 'testdata/conformance/kodak/kodim18.png': VipsForeignLoad: "testdata/conformance/kodak/kodim18.png" is not a known file format
+
+  ❌ FAIL: kodim18.png - Optimization failed: error.LoadFailed
+Failed to load image 'testdata/conformance/kodak/kodim19.png': VipsForeignLoad: "testdata/conformance/kodak/kodim19.png" is not a known file format
+
+  ❌ FAIL: kodim19.png - Optimization failed: error.LoadFailed
+Failed to load image 'testdata/conformance/kodak/kodim22.png': VipsForeignLoad: "testdata/conformance/kodak/kodim22.png" is not a known file format
+
+  ❌ FAIL: kodim22.png - Optimization failed: error.LoadFailed
+Failed to load image 'testdata/conformance/kodak/kodim23.png': VipsForeignLoad: "testdata/conformance/kodak/kodim23.png" is not a known file format
+
+  ❌ FAIL: kodim23.png - Optimization failed: error.LoadFailed
+Failed to load image 'testdata/conformance/kodak/kodim09.png': VipsForeignLoad: "testdata/conformance/kodak/kodim09.png" is not a known file format
+
+  ❌ FAIL: kodim09.png - Optimization failed: error.LoadFailed
+Failed to load image 'testdata/conformance/kodak/kodim21.png': VipsForeignLoad: "testdata/conformance/kodak/kodim21.png" is not a known file format
+
+  ❌ FAIL: kodim21.png - Optimization failed: error.LoadFailed
+Failed to load image 'testdata/conformance/kodak/kodim20.png': VipsForeignLoad: "testdata/conformance/kodak/kodim20.png" is not a known file format
+
+  ❌ FAIL: kodim20.png - Optimization failed: error.LoadFailed
+Failed to load image 'testdata/conformance/kodak/kodim08.png': VipsForeignLoad: "testdata/conformance/kodak/kodim08.png" is not a known file format
+
+  ❌ FAIL: kodim08.png - Optimization failed: error.LoadFailed
+
+Testing testdata/conformance/webp/
+  ❌ FAIL: 5.webp - Output larger than input: 82698 → 132366 bytes (160.1%)
+  ❌ FAIL: 4.webp - Output larger than input: 176972 → 278334 bytes (157.3%)
+  ❌ FAIL: 3.webp - Output larger than input: 203138 → 337258 bytes (166.0%)
+  ❌ FAIL: 2.webp - Output larger than input: 60600 → 97883 bytes (161.5%)
+  ❌ FAIL: 1.webp - Output larger than input: 30320 → 49743 bytes (164.1%)
+
+=== Results ===
+Total:   208
+Passed:  44
+Failed:  164
+Pass rate: 21%
+Average compression: 54.8%
+
+❌ Some tests failed
+conformance
++- run exe conformance failure
+error: the following command exited with error code 1:
+/Users/ongteckwu/pyjamaz/zig-out/bin/conformance
+
+Build Summary: 5/7 steps succeeded; 1 failed
+conformance transitive failure
++- run exe conformance failure
+
+error: the following build command failed with exit code 1:
+.zig-cache/o/be54907274cb719b2f47a9bbad0d4c69/build /opt/homebrew/Cellar/zig/0.15.1/bin/zig /opt/homebrew/Cellar/zig/0.15.1/lib/zig /Users/ongteckwu/pyjamaz .zig-cache /Users/ongteckwu/.cache/zig --seed 0x3447b8ef -Za650c6f607fe6033 conformance

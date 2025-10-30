@@ -151,15 +151,20 @@ pub const VipsContext = struct {
     /// Only initialize once per process.
     /// Thread Safety: NOT thread-safe. Call from main thread only.
     pub fn init() !VipsContext {
-        const result = vips_init("pyjamaz");
+        const argv0 = "pyjamaz";
+        std.debug.print("DEBUG: Initializing libvips with argv0={s}\n", .{argv0});
+
+        const result = vips_init(argv0.ptr);
+        std.debug.print("DEBUG: vips_init returned {}\n", .{result});
+
         if (result != 0) {
             const err = getVipsError();
-            // HIGH-006: Use std.log.err for proper error reporting
-            std.log.err("vips_init failed: {s}", .{err});
+            std.log.err("vips_init failed with code {}: {s}", .{result, err});
             clearVipsError();
             return VipsError.InitFailed;
         }
 
+        std.debug.print("DEBUG: libvips initialized successfully\n", .{});
         return VipsContext{ .initialized = true };
     }
 
@@ -230,39 +235,84 @@ pub const VipsImageWrapper = struct {
     /// Convert image to ImageBuffer
     ///
     /// Safety: Allocates memory, caller must call ImageBuffer.deinit()
+    /// Tiger Style: Handles arbitrary band counts by converting to RGB/RGBA
     pub fn toImageBuffer(self: *const VipsImageWrapper, allocator: Allocator) !ImageBuffer {
         const w = self.width();
         const h = self.height();
         const b = self.bands();
 
-        // Ensure we have RGB or RGBA
-        std.debug.assert(b == 3 or b == 4);
+        // Tiger Style: Pre-conditions
         std.debug.assert(w > 0 and w <= 65535);
         std.debug.assert(h > 0 and h <= 65535);
+        std.debug.assert(b > 0 and b <= 4);
+
+        // Convert to RGB or RGBA if needed
+        var converted_image: ?VipsImageWrapper = null;
+        const source_image = blk: {
+            if (b == 1) {
+                // Grayscale -> RGB (copy to 3 bands)
+                var output: ?*VipsImage = null;
+                const result = vips_colourspace(self.image, &output, .srgb, @as([*c]u8, null));
+                if (result != 0 or output == null) {
+                    const err = getVipsError();
+                    std.log.err("Failed to convert grayscale to RGB: {s}", .{err});
+                    clearVipsError();
+                    return VipsError.ConversionFailed;
+                }
+                converted_image = VipsImageWrapper.wrap(output.?);
+                break :blk &converted_image.?;
+            } else if (b == 2) {
+                // Grayscale+Alpha -> RGBA (copy gray to RGB, keep alpha)
+                var output: ?*VipsImage = null;
+                const result = vips_colourspace(self.image, &output, .srgb, @as([*c]u8, null));
+                if (result != 0 or output == null) {
+                    const err = getVipsError();
+                    std.log.err("Failed to convert grayscale+alpha to RGBA: {s}", .{err});
+                    clearVipsError();
+                    return VipsError.ConversionFailed;
+                }
+                converted_image = VipsImageWrapper.wrap(output.?);
+                break :blk &converted_image.?;
+            } else {
+                // Already RGB or RGBA
+                break :blk self;
+            }
+        };
+        defer if (converted_image) |*img| img.deinit();
+
+        // Get final band count after conversion
+        const final_bands = source_image.bands();
+        std.debug.assert(final_bands == 3 or final_bands == 4);
 
         var size: usize = 0;
-        const data_ptr = vips_image_write_to_memory(self.image, &size);
+        const data_ptr = vips_image_write_to_memory(source_image.image, &size);
+
+        // Tiger Style: defer ensures g_free on all paths (prevents FFI leaks)
+        defer if (data_ptr != null) g_free(data_ptr);
+
         if (data_ptr == null) {
             const err = getVipsError();
-            std.debug.print("vips_image_write_to_memory failed: {s}\n", .{err});
+            std.log.err("vips_image_write_to_memory failed: {s}", .{err});
             clearVipsError();
             return VipsError.ConversionFailed;
         }
 
         // Create ImageBuffer and copy data
-        var buffer = try ImageBuffer.init(allocator, w, h, @intCast(b));
+        var buffer = try ImageBuffer.init(allocator, w, h, @intCast(final_bands));
         errdefer buffer.deinit();
 
         const expected_size = @as(usize, buffer.stride) * @as(usize, h);
         if (size != expected_size) {
-            std.debug.print("Size mismatch: expected {}, got {}\n", .{ expected_size, size });
-            g_free(data_ptr);
+            std.log.err("Size mismatch: expected {}, got {} ({}x{} @ {} bands)",
+                .{ expected_size, size, w, h, final_bands });
             return VipsError.InvalidImage;
         }
 
         const src_slice = data_ptr[0..size];
         @memcpy(buffer.data, src_slice);
-        g_free(data_ptr);
+
+        // Post-condition: Buffer is valid
+        std.debug.assert(buffer.data.len == expected_size);
 
         return buffer;
     }

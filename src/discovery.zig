@@ -91,7 +91,7 @@ fn discoverInDirectory(
                 if (isSupportedExtension(ext)) {
                     // Add to results (owned copy)
                     const owned_path = try allocator.dupe(u8, full_path);
-                    try results.append(owned_path);
+                    try results.append(allocator, owned_path);
                 }
             },
             .directory => {
@@ -125,7 +125,7 @@ fn discoverInDirectory(
                         const ext = std.fs.path.extension(entry.name);
                         if (isSupportedExtension(ext)) {
                             const owned_path = try allocator.dupe(u8, full_path);
-                            try results.append(owned_path);
+                            try results.append(allocator, owned_path);
                         }
                     }
                 } else {
@@ -162,12 +162,12 @@ pub fn discoverInputs(
     // Tiger Style: Assertions
     std.debug.assert(paths.len > 0);
 
-    var results = std.ArrayList([]u8).init(allocator);
+    var results = std.ArrayList([]u8){};
     errdefer {
         for (results.items) |path| {
             allocator.free(path);
         }
-        results.deinit();
+        results.deinit(allocator);
     }
 
     // HIGH-005: Track visited inodes to detect symlink cycles
@@ -186,7 +186,7 @@ pub fn discoverInputs(
                 const ext = std.fs.path.extension(path);
                 if (isSupportedExtension(ext)) {
                     const owned_path = try allocator.dupe(u8, path);
-                    try results.append(owned_path);
+                    try results.append(allocator, owned_path);
                 } else {
                     std.log.warn("Skipping non-image file: {s}", .{path});
                 }
@@ -221,9 +221,9 @@ pub fn deduplicatePaths(allocator: std.mem.Allocator, paths: *std.ArrayList([]u8
     for (paths.items, 0..) |path, read_idx| {
         // Normalize path (resolve relative paths)
         // Tiger Style: Explicit error handling with fallback
-        const abs_path = std.fs.cwd().realpathAlloc(allocator, path) catch |err| {
+        const abs_path = std.fs.cwd().realpathAlloc(allocator, path) catch |err| blk: {
             std.log.warn("Failed to resolve path '{s}': {} - using as-is", .{ path, err });
-            path // Fallback to original path
+            break :blk path; // Fallback to original path
         };
         const is_different_path = abs_path.ptr != path.ptr;
         defer if (is_different_path) allocator.free(abs_path);
@@ -301,7 +301,7 @@ test "discoverInputs: single file" {
         for (results.items) |path| {
             testing.allocator.free(path);
         }
-        results.deinit();
+        results.deinit(testing.allocator);
     }
 
     try testing.expectEqual(@as(usize, 1), results.items.len);
@@ -333,7 +333,7 @@ test "discoverInputs: directory" {
         for (results.items) |path| {
             testing.allocator.free(path);
         }
-        results.deinit();
+        results.deinit(testing.allocator);
     }
 
     // Should find 2 images (jpg and png, but not txt)
@@ -369,7 +369,7 @@ test "discoverInputs: nested directories" {
         for (results.items) |path| {
             testing.allocator.free(path);
         }
-        results.deinit();
+        results.deinit(testing.allocator);
     }
 
     // Should find both images
@@ -379,19 +379,19 @@ test "discoverInputs: nested directories" {
 test "deduplicatePaths: removes duplicates" {
     const testing = std.testing;
 
-    var paths = std.ArrayList([]u8).init(testing.allocator);
+    var paths = std.ArrayList([]u8){};
     defer {
         for (paths.items) |path| {
             testing.allocator.free(path);
         }
-        paths.deinit();
+        paths.deinit(testing.allocator);
     }
 
     // Add some paths (some duplicates)
-    try paths.append(try testing.allocator.dupe(u8, "image1.jpg"));
-    try paths.append(try testing.allocator.dupe(u8, "image2.png"));
-    try paths.append(try testing.allocator.dupe(u8, "image1.jpg")); // duplicate
-    try paths.append(try testing.allocator.dupe(u8, "image3.webp"));
+    try paths.append(testing.allocator, try testing.allocator.dupe(u8, "image1.jpg"));
+    try paths.append(testing.allocator, try testing.allocator.dupe(u8, "image2.png"));
+    try paths.append(testing.allocator, try testing.allocator.dupe(u8, "image1.jpg")); // duplicate
+    try paths.append(testing.allocator, try testing.allocator.dupe(u8, "image3.webp"));
 
     try deduplicatePaths(testing.allocator, &paths);
 

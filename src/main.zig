@@ -65,9 +65,15 @@ test {
     _ = @import("vips.zig");
     _ = @import("image_ops.zig");
     _ = @import("codecs.zig");
+    _ = @import("output.zig");
+    _ = @import("manifest.zig");
 
     // Standalone test files
     _ = @import("test/unit/vips_test.zig");
     _ = @import("test/unit/image_ops_test.zig");
     _ = @import("test/unit/codecs_encoding_test.zig");
+
+    // Integration tests (uncomment when ready)
+    // Note: Integration tests are currently in conformance runner
+    // Run with: zig build conformance
 }

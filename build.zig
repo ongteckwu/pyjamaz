@@ -51,6 +51,62 @@ pub fn build(b: *std.Build) void {
     unit_tests.linkLibC();
 
     const run_unit_tests = b.addRunArtifact(unit_tests);
+
+    // Set environment variables for vips
+    run_unit_tests.setEnvironmentVariable("VIPS_DISC_THRESHOLD", "0"); // Disable disc caching
+    run_unit_tests.setEnvironmentVariable("VIPS_NOVECTOR", "1"); // Disable vectorization
+
     const test_step = b.step("test", "Run unit tests");
     test_step.dependOn(&run_unit_tests.step);
+
+    // Integration tests (from src/test/integration/)
+    const integration_tests = b.addTest(.{
+        .name = "integration-tests",
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("src/test_root.zig"),
+            .target = target,
+            .optimize = optimize,
+        }),
+    });
+
+    // Link C libraries for integration tests
+    integration_tests.linkSystemLibrary("vips");
+    integration_tests.linkSystemLibrary("jpeg");
+    integration_tests.linkLibC();
+
+    const run_integration_tests = b.addRunArtifact(integration_tests);
+
+    // Set environment variables for vips
+    run_integration_tests.setEnvironmentVariable("VIPS_DISC_THRESHOLD", "0");
+    run_integration_tests.setEnvironmentVariable("VIPS_NOVECTOR", "1");
+
+    const test_integration_step = b.step("test-integration", "Run integration tests");
+    test_integration_step.dependOn(&run_integration_tests.step);
+
+    // Conformance testing
+    const conformance_exe = b.addExecutable(.{
+        .name = "conformance",
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("src/conformance_root.zig"),
+            .target = target,
+            .optimize = optimize,
+        }),
+    });
+
+    // Link C libraries for conformance tests
+    conformance_exe.linkSystemLibrary("vips");
+    conformance_exe.linkSystemLibrary("jpeg");
+    conformance_exe.linkLibC();
+
+    b.installArtifact(conformance_exe);
+
+    const run_conformance = b.addRunArtifact(conformance_exe);
+    run_conformance.step.dependOn(b.getInstallStep());
+
+    // Set environment variables
+    run_conformance.setEnvironmentVariable("VIPS_DISC_THRESHOLD", "0");
+    run_conformance.setEnvironmentVariable("VIPS_NOVECTOR", "1");
+
+    const conformance_step = b.step("conformance", "Run conformance tests on testdata/");
+    conformance_step.dependOn(&run_conformance.step);
 }

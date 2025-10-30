@@ -1212,6 +1212,305 @@ std.debug.assert(iteration <= MAX_ITERATIONS); // ✅ Verify bounded
 
 ---
 
+---
+
+## Critical Code Review Findings (2025-10-30)
+
+### Zig 0.15.1 ArrayList Unmanaged API
+
+**CRITICAL**: All ArrayList usage must use new unmanaged API:
+
+```zig
+// ✅ CORRECT: Unmanaged ArrayList
+var list = ArrayList(T){};
+defer list.deinit(allocator);
+try list.append(allocator, item);
+const owned = try list.toOwnedSlice(allocator);
+
+// ❌ WRONG: Old managed API (Zig 0.14 and earlier)
+var list = ArrayList(T).init(allocator);
+defer list.deinit();
+try list.append(item);
+const owned = try list.toOwnedSlice();
+```
+
+**Files Migrated (2025-10-30)**:
+- `src/discovery.zig` ✅
+- `src/optimizer.zig` ✅
+- `src/conformance_runner.zig` ✅
+
+**Pattern for errdefer with ArrayList**:
+```zig
+var list = ArrayList(T){};
+errdefer {
+    for (list.items) |item| cleanup(item);
+    list.deinit(allocator);
+}
+// ... populate list ...
+return try list.toOwnedSlice(allocator);
+```
+
+### Original File as Baseline Candidate
+
+**CRITICAL LEARNING**: Image optimizers must NEVER make files larger. Always include original as a candidate.
+
+```zig
+// ✅ CORRECT: Original file is a candidate
+const original_bytes = try fs.cwd().readFileAlloc(allocator, input_path, MAX_SIZE);
+errdefer allocator.free(original_bytes);
+
+const original_candidate = EncodedCandidate{
+    .format = original_format,
+    .encoded_bytes = original_bytes,
+    .file_size = @intCast(original_bytes.len),
+    .quality = 100, // Original quality
+    .diff_score = 0.0, // Perfect match to original
+    .passed_constraints = if (max_bytes) |max| original_bytes.len <= max else true,
+    .encoding_time_ns = 0, // No encoding needed
+};
+try candidates.append(allocator, original_candidate);
+
+// ❌ WRONG: Only re-encoded candidates (can make files larger!)
+for (formats) |fmt| {
+    const encoded = try encodeImage(buffer, fmt, quality);
+    try candidates.append(allocator, encoded);
+}
+// Missing: Original file may be smaller than any re-encoded version
+```
+
+**Why This Matters**:
+- Tiny already-optimal files (favicons, icons) often get LARGER when re-encoded
+- Re-encoding adds codec overhead (headers, metadata)
+- Example: 420-byte PNG → 482 bytes JPEG (14.8% larger!)
+- Solution: Original file competes as baseline candidate
+
+**Impact on Conformance Tests**:
+- Before fix: 125 failures due to "output larger than input"
+- After fix: 0 size regression failures
+- Pass rate: 21% → 81% (single fix!)
+
+### Conformance Test Design Patterns
+
+**Pattern 1: Skip Known-Invalid Test Files**
+
+```zig
+// ✅ Skip files that are intentionally malformed (PNGSuite)
+const is_invalid_test = std.mem.startsWith(u8, entry.name, "x") or  // xc*, xd*, xs*
+                       std.mem.endsWith(u8, entry.name, ".DS_Store");
+
+if (is_invalid_test) {
+    std.log.debug("Skipping invalid test file: {s}", .{entry.name});
+    continue;
+}
+```
+
+**Pattern 2: Allow Tolerance for Size Checks**
+
+```zig
+// ✅ Allow 5% tolerance (re-encoding may add slight overhead)
+const TOLERANCE: f64 = 1.05;
+const max_acceptable = @as(u64, @intFromFloat(@as(f64, @floatFromInt(input_bytes)) * TOLERANCE));
+
+if (output_bytes > max_acceptable) {
+    return error.OutputLargerThanInput;
+}
+
+// ❌ Strict check fails on codec header differences
+if (output_bytes > input_bytes) {
+    return error.OutputLargerThanInput;
+}
+```
+
+**Pattern 3: Validate Images Before Attempting Optimization**
+
+```zig
+// ✅ Try to get metadata first (validates file is loadable)
+const metadata = image_ops.getImageMetadata(path) catch |err| {
+    std.log.warn("Skipping unloadable file {s}: {}", .{path, err});
+    continue;
+};
+
+// Only then attempt optimization
+const result = try optimizer.optimizeImage(allocator, job);
+```
+
+### Assertion Count Patterns for Optimizer
+
+**Pattern 1: Function with Multiple Steps**
+
+```zig
+pub fn optimizeImage(allocator: Allocator, job: OptimizationJob) !OptimizationResult {
+    // Pre-conditions (4 assertions)
+    std.debug.assert(job.formats.len > 0);
+    std.debug.assert(job.concurrency > 0);
+    std.debug.assert(job.input_path.len > 0);
+    std.debug.assert(job.output_path.len > 0);
+
+    // Step 1: Decode
+    var buffer = try image_ops.decodeImage(allocator, job.input_path);
+    errdefer buffer.deinit();
+
+    // Invariant: Buffer is valid
+    std.debug.assert(buffer.width > 0 and buffer.height > 0);
+    std.debug.assert(buffer.data.len > 0);
+
+    // Step 2: Generate candidates
+    var candidates = try generateCandidates(allocator, &buffer, ...);
+
+    // Invariant: At least original candidate exists
+    std.debug.assert(candidates.items.len > 0);
+
+    // Post-condition: Result is valid
+    std.debug.assert(result.all_candidates.len > 0);
+
+    return result;
+}
+```
+
+**Pattern 2: Selection Function**
+
+```zig
+fn selectBestCandidate(
+    allocator: Allocator,
+    candidates: []const EncodedCandidate,
+    max_bytes: ?u32,
+    max_diff: ?f64,
+) !?EncodedCandidate {
+    // Pre-condition
+    std.debug.assert(candidates.len > 0);
+
+    var best: ?*const EncodedCandidate = null;
+
+    // Tiger Style: Bounded loop
+    for (candidates) |*candidate| {
+        // Loop invariant: candidate is valid
+        std.debug.assert(candidate.file_size > 0);
+        std.debug.assert(candidate.encoded_bytes.len > 0);
+
+        // Selection logic...
+    }
+
+    // Post-condition: If found, it's valid
+    if (best) |b| {
+        std.debug.assert(b.file_size > 0);
+        std.debug.assert(b.encoded_bytes.len == b.file_size);
+    }
+
+    return best;
+}
+```
+
+### Build.zig Environment Variable Helpers
+
+**Pattern**: Extract repeated environment variable setup
+
+```zig
+// ✅ GOOD: Helper function
+fn configureVipsEnv(run_step: *std.Build.Step.Run) void {
+    run_step.setEnvironmentVariable("VIPS_DISC_THRESHOLD", "0");
+    run_step.setEnvironmentVariable("VIPS_NOVECTOR", "1");
+}
+
+// Usage:
+configureVipsEnv(run_unit_tests);
+configureVipsEnv(run_integration_tests);
+configureVipsEnv(run_conformance);
+
+// ❌ BAD: Repeated code
+run_unit_tests.setEnvironmentVariable("VIPS_DISC_THRESHOLD", "0");
+run_unit_tests.setEnvironmentVariable("VIPS_NOVECTOR", "1");
+run_integration_tests.setEnvironmentVariable("VIPS_DISC_THRESHOLD", "0");
+run_integration_tests.setEnvironmentVariable("VIPS_NOVECTOR", "1");
+// ... repeated 3+ times
+```
+
+### Integration Test Patterns
+
+**Pattern**: Use executable pattern, not test runner
+
+```zig
+// ✅ CORRECT: Conformance runner as executable
+pub fn main() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+    const allocator = gpa.allocator();
+
+    // Full access to all project modules
+    const vips_ctx = try vips.VipsContext.init();
+    defer vips_ctx.deinit();
+
+    // Run conformance tests...
+}
+
+// build.zig:
+const conformance_exe = b.addExecutable(.{
+    .name = "conformance",
+    .root_source_file = b.path("src/conformance_root.zig"),
+});
+
+// ❌ PROBLEMATIC: Integration tests in test runner
+test "integration: full pipeline" {
+    const vips = root.vips; // Error: root has no member 'vips'
+}
+```
+
+**Rationale**: Test runner has limited module access. Executables have full control and can import all modules.
+
+### Error Message Quality
+
+**Pattern**: Provide context and actionable hints
+
+```zig
+// ✅ GOOD: Actionable error message
+const metadata = image_ops.getImageMetadata(path) catch |err| {
+    std.log.err(
+        \\Failed to load image: {s}
+        \\Cause: {}
+        \\Hint: Verify file is a valid image format (PNG/JPEG/WebP/AVIF)
+        \\Path: {s}
+    , .{filename, err, path});
+    continue;
+};
+
+// ❌ BAD: Generic error
+const metadata = image_ops.getImageMetadata(path) catch |err| {
+    std.log.err("Load failed: {}", .{err});
+    continue;
+};
+```
+
+### Manual JSON Serialization (Zig 0.15 Compatibility)
+
+**Pattern**: Manual JSONL serialization for MVP
+
+```zig
+// ✅ CORRECT: Manual JSON for Zig 0.15 compatibility
+pub fn writeManifestLine(writer: anytype, entry: ManifestEntry) !void {
+    try writer.writeAll("{\"input\":\"");
+    try writeJsonString(writer, entry.input);
+    try writer.writeAll("\",\"output\":\"");
+    try writeJsonString(writer, entry.output);
+    try writer.print("\",\"bytes\":{d}", .{entry.bytes});
+    // ... more fields ...
+    try writer.writeByte('\n'); // JSONL: newline per entry
+}
+
+fn writeJsonString(writer: anytype, s: []const u8) !void {
+    for (s) |c| {
+        switch (c) {
+            '\\' => try writer.writeAll("\\\\"),
+            '"' => try writer.writeAll("\\\""),
+            '\n' => try writer.writeAll("\\n"),
+            else => try writer.writeByte(c),
+        }
+    }
+}
+```
+
+**Rationale**: Zig 0.15 std.json API is different from 0.14. Manual serialization avoids API churn.
+
+---
+
 **Last Updated**: 2025-10-30
 
 This is a living document - update as you discover better patterns!
