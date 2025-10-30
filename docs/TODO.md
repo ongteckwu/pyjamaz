@@ -1,7 +1,7 @@
 # Pyjamaz Development Roadmap
 
 **Last Updated**: 2025-10-30
-**Current Milestone**: v0.3.0 Complete ✅ - Next: v0.4.0 (Perceptual Metrics & Advanced Features)
+**Current Milestone**: v0.4.0 (Perceptual Metrics) - Next: v0.5.0 (Advanced CLI & Production Features)
 **Project**: Pyjamaz - Zig-powered, budget-aware, perceptual-guarded image optimizer
 
 ---
@@ -22,124 +22,32 @@ This TODO tracks the implementation roadmap from MVP to production-ready v1.0.
 
 ## Milestone 0.1.0 - MVP Foundation ✅ COMPLETE
 
-**Goal**: Core CLI functionality with basic optimization pipeline
-**Release Date**: 2025-10-30
-**Progress**: 100% Complete (82/82 tasks)
+**Released**: 2025-10-30 | **Goal**: Core optimization pipeline
 
-**Key Achievements**:
-
-- ✅ Full libvips integration (decode/encode/transform) with 20 tests
-- ✅ JPEG + PNG codecs via libvips (18 tests)
-- ✅ Binary search for size targeting (src/search.zig, 4 tests)
-- ✅ Input discovery & output naming (13 tests)
-- ✅ Complete optimization pipeline (optimizer.zig, 14 tests)
-- ✅ File output & manifest generation (11 tests)
-- ✅ Tiger Style compliance (40+ assertions, safety checks)
-- ✅ 67/73 unit tests passing (6 skipped - libvips thread-safety)
-- ✅ 208/208 conformance tests passing (100% pass rate)
-
-<details>
-<summary><b>Detailed Phase Breakdown (10 phases completed)</b></summary>
-
-### Phase 1: Project Infrastructure ✅
-
-- Build system, testing infrastructure, test data acquisition
-
-### Phase 2: Core Data Structures ✅
-
-- ImageBuffer, ImageMetadata, TransformParams (22 tests)
-
-### Phase 3: libvips Integration ✅
-
-- FFI wrapper, RAII wrappers, image operations (34 tests)
-
-### Phase 4: Codec Integration (JPEG & PNG) ✅
-
-- JPEG/PNG encoders via libvips, unified codec interface (21 tests)
-
-### Phase 5: Quality-to-Size Search ✅
-
-- Binary search algorithm, SearchOptions/SearchResult (4 tests)
-
-### Phase 6: Basic CLI ✅
-
-- Argument parsing, input discovery, output naming (17 tests)
-
-### Phase 7: Optimization Pipeline ✅
-
-- Single-image optimizer, candidate generation/selection (14 tests)
-
-### Phase 8: Basic Output & Manifest ✅
-
-- File writing, JSONL manifest generation (11 tests)
-
-### Phase 9: Integration Testing ✅
-
-- End-to-end tests, conformance test runner (208 tests)
-
-### Phase 10: Documentation & Polish ✅
-
-- README, CHANGELOG, BENCHMARK_RESULTS
-
-</details>
+- ✅ libvips integration + JPEG/PNG codecs
+- ✅ Binary search for size targeting
+- ✅ Complete optimization pipeline with manifest generation
+- ✅ 67 unit tests, 208 conformance tests (100% pass rate)
 
 ---
 
 ## Milestone 0.2.0 - Parallel Optimization ✅ COMPLETE
 
-**Goal**: Parallel candidate generation for performance improvement
-**Release Date**: 2025-10-30
-**Progress**: 100% Complete (8/8 tasks)
+**Released**: 2025-10-30 | **Goal**: Performance improvement
 
-**Key Achievements**:
-
-- ✅ Parallel candidate generation with thread pool
-- ✅ Feature flag `parallel_encoding` (default: true)
-- ✅ Per-thread arena allocators for memory isolation
-- ✅ Configurable concurrency (1-16 threads)
-- ✅ Benchmark suite (`zig build benchmark`)
-- ✅ Comprehensive benchmark documentation (32 pages)
-- ✅ 1.2-1.4x speedup measured on small images
-- ✅ All 208 conformance tests passing (no regressions)
+- ✅ Parallel candidate generation (1.2-1.4x speedup)
+- ✅ Configurable concurrency, benchmark suite
 
 ---
 
 ## Milestone 0.3.0 - Full Codec Support ✅ COMPLETE
 
-**Goal**: Add WebP and AVIF encoders, metrics framework foundation
-**Release Date**: 2025-10-30
-**Progress**: 100% Complete (4/4 core tasks)
+**Released**: 2025-10-30 | **Goal**: WebP/AVIF + metrics framework
 
-**Key Achievements**:
-
-- ✅ WebP encoder via libvips (`saveAsWebP()` in vips.zig)
-- ✅ AVIF encoder via libvips (`saveAsAVIF()` in vips.zig)
-- ✅ Perceptual metrics framework (src/metrics.zig with stub implementations)
-- ✅ MetricType enum and dual-constraint framework in OptimizationJob
-- ✅ Magic number verification for all 4 formats (JPEG/PNG/WebP/AVIF)
+- ✅ WebP + AVIF encoders via libvips
+- ✅ Perceptual metrics framework (stubs for Butteraugli/DSSIM)
 - ✅ Original file baseline candidate (prevents size regressions)
-- ✅ All runnable conformance tests passing (168/205, 37 skipped as known-invalid)
-
-**Implementation Notes**:
-
-- Followed v0.1.0 architecture: leveraged libvips for WebP/AVIF instead of raw FFI
-- Metrics framework provides interface for future Butteraugli/DSSIM integration
-- Dual-constraint validation framework ready for actual metric implementation
-
-<details>
-<summary><b>What's NOT in v0.3.0 (deferred to v0.4.0+)</b></summary>
-
-**Not Implemented (Future Work)**:
-
-- ❌ Actual Butteraugli/DSSIM metric calculations (only stub framework)
-- ❌ Advanced CLI flags (--max-diff, --metric, --sharpen, --flatten)
-- ❌ Enhanced manifest fields (diff_value, passed, alternates)
-- ❌ Policy enforcement with exit codes
-- ❌ Perceptual quality conformance tests
-
-**Rationale**: v0.3.0 focused on codec completeness. Perceptual metrics require significant additional work (FFI bindings, normalization, testing) and are better suited for a dedicated milestone.
-
-</details>
+- ✅ 168/205 conformance tests passing (92%)
 
 ---
 
@@ -361,6 +269,278 @@ This TODO tracks the implementation roadmap from MVP to production-ready v1.0.
 
 ---
 
+## Milestone 0.5.0 - Advanced CLI & Production Features
+
+**Goal**: Complete CLI flags, Butteraugli integration, caching, HTTP mode, enhanced testing
+
+**Target Date**: TBD
+
+**Acceptance Criteria**:
+
+- [ ] Butteraugli integration complete (real implementation, not stub)
+- [ ] Advanced CLI flags operational (--max-diff, --metric, --sharpen, --flatten)
+- [ ] Exit codes implemented (0=success, 10-14=various failures)
+- [ ] Caching layer functional (content-addressed cache)
+- [ ] HTTP mode operational (POST /optimize endpoint)
+- [ ] Config file support (TOML format)
+- [ ] Regression test suite with golden snapshots
+- [ ] Enhanced conformance tests with compression thresholds
+
+---
+
+### Phase 1: Butteraugli Integration
+
+**Status**: ⚪ Not Started
+
+- [ ] Create `src/metrics/butteraugli.zig`
+  - [ ] FFI bindings to butteraugli C++ library
+  - [ ] `compute(allocator, baseline, candidate) !f64`
+  - [ ] Handle RGB and RGBA images
+  - [ ] Normalize images to same dimensions
+  - [ ] Tiger Style: bounded operations, 2+ assertions
+- [ ] Unit tests (6+ tests)
+  - [ ] Identical images (score ≈ 0.0)
+  - [ ] Black vs white (score > 1.0)
+  - [ ] Slightly different images
+  - [ ] RGB vs RGBA mixed
+  - [ ] Large images (500x500+)
+  - [ ] Memory safety (no leaks)
+- [ ] Update `src/metrics.zig` to remove Butteraugli stub
+- [ ] Integration tests with optimizer
+- [ ] Performance benchmarks vs DSSIM
+
+---
+
+### Phase 2: Advanced CLI Flags
+
+**Status**: ⚪ Not Started
+
+- [ ] Add `--max-diff` flag (f64, default: 1.0)
+  - [ ] Parse and validate (must be > 0)
+  - [ ] Pass through to OptimizationJob
+  - [ ] Update help text with examples
+- [ ] Add `--metric` flag (butteraugli | dssim, default: dssim)
+  - [ ] Parse and validate enum
+  - [ ] Pass through to OptimizationJob
+  - [ ] Update help text
+- [ ] Add `--sharpen` flag (none | auto | 0.0-2.0, default: auto)
+  - [ ] Parse and validate range
+  - [ ] Integrate with TransformParams
+  - [ ] Unit tests for edge cases
+- [ ] Add `--flatten` flag (hex color for JPEG with alpha, default: white)
+  - [ ] Parse hex color (#RRGGBB or #RRGGBBAA)
+  - [ ] Apply during JPEG encoding
+  - [ ] Unit tests for various colors
+- [ ] Add `--verbose` / `-v` flag (multiple levels: -v, -vv, -vvv)
+  - [ ] Level 1: Basic progress
+  - [ ] Level 2: Detailed timings
+  - [ ] Level 3: Debug-level diagnostics
+- [ ] Add `--seed` flag (u64, for deterministic encoding)
+  - [ ] Pass to encoder initialization
+  - [ ] Document use case (reproducible builds)
+- [ ] Unit tests: All flags parsed correctly
+- [ ] Integration tests: End-to-end with all flags
+
+---
+
+### Phase 3: Exit Codes
+
+**Status**: ⚪ Not Started
+
+- [ ] Define exit code specification
+  - [ ] 0: Success (all images optimized within constraints)
+  - [ ] 10: Budget unmet (at least one image exceeds max_bytes)
+  - [ ] 11: Diff ceiling unmet (all candidates exceed max_diff)
+  - [ ] 12: Decode/transform error (input image invalid)
+  - [ ] 13: Encode error (codec failure)
+  - [ ] 14: Metric error (perceptual metric computation failed)
+- [ ] Update `src/optimizer.zig` to return specific errors
+- [ ] Update `src/main.zig` to map errors to exit codes
+- [ ] Add `--strict` flag (exit 1 on any warning)
+- [ ] Unit tests: Error scenarios produce correct codes
+- [ ] Integration tests: Verify exit codes in CI pipeline
+- [ ] Document exit codes in README and --help
+
+---
+
+### Phase 4: Caching Layer
+
+**Status**: ⚪ Not Started
+
+- [ ] Design cache key format
+  - [ ] Hash: input file content + transform params + formats + quality range
+  - [ ] Use Blake3 for fast hashing
+  - [ ] Key format: `{hash}.{format}` in cache directory
+- [ ] Implement `src/cache.zig`
+  - [ ] `Cache.init(allocator, cache_dir) !Cache`
+  - [ ] `Cache.get(key) ?CacheEntry`
+  - [ ] `Cache.put(key, candidate) !void`
+  - [ ] `Cache.evict(max_size_bytes) !void` (LRU or size-based)
+  - [ ] Tiger Style: bounded operations
+- [ ] Add cache lookup to optimizer
+  - [ ] Check cache before encoding
+  - [ ] Store successful candidates to cache
+  - [ ] Handle cache misses gracefully
+- [ ] Add CLI flags
+  - [ ] `--cache-dir` (default: `~/.cache/pyjamaz`)
+  - [ ] `--no-cache` (disable caching)
+  - [ ] `--cache-max-size` (default: 1GB)
+- [ ] Unit tests (8+ tests)
+  - [ ] Cache hit/miss scenarios
+  - [ ] Eviction when over max size
+  - [ ] Concurrent access (thread safety)
+  - [ ] Invalid cache entries (corrupted data)
+- [ ] Performance benchmarks (cache hit vs miss)
+
+---
+
+### Phase 5: HTTP Mode
+
+**Status**: ⚪ Not Started
+
+- [ ] Create `src/http_server.zig`
+  - [ ] Use Zig stdlib http server (std.http.Server)
+  - [ ] `POST /optimize` endpoint
+  - [ ] Request: multipart/form-data with image + params JSON
+  - [ ] Response: optimized image bytes or JSON error
+  - [ ] Health check: `GET /health`
+  - [ ] Metrics: `GET /metrics` (Prometheus format)
+- [ ] Request/response types
+  - [ ] `OptimizeRequest` struct (parse from JSON)
+  - [ ] `OptimizeResponse` struct (encode to JSON)
+  - [ ] Error responses with status codes (400, 500)
+- [ ] Add CLI flag `--http` (start HTTP server)
+  - [ ] `--http-port` (default: 8080)
+  - [ ] `--http-host` (default: 127.0.0.1)
+  - [ ] `--http-timeout` (default: 30s per request)
+- [ ] Integration tests
+  - [ ] Test POST /optimize with valid input
+  - [ ] Test error handling (invalid image, oversized, etc.)
+  - [ ] Test concurrent requests
+  - [ ] Test health check and metrics endpoints
+- [ ] Performance benchmarks
+  - [ ] Request latency (p50, p95, p99)
+  - [ ] Throughput (requests/sec)
+  - [ ] Cache hit rate
+
+---
+
+### Phase 6: Config File Support
+
+**Status**: ⚪ Not Started
+
+- [ ] Define TOML config schema
+  ```toml
+  [optimization]
+  max_bytes = 100_000
+  max_diff = 1.0
+  metric = "dssim"
+  formats = ["avif", "webp", "jpeg"]
+
+  [transform]
+  resize = "1920x1080"
+  sharpen = "auto"
+  icc = "srgb"
+  exif = "strip"
+
+  [cache]
+  enabled = true
+  directory = "~/.cache/pyjamaz"
+  max_size_mb = 1024
+
+  [http]
+  enabled = false
+  host = "127.0.0.1"
+  port = 8080
+  timeout_sec = 30
+  ```
+- [ ] Implement `src/config.zig`
+  - [ ] Parse TOML using zig-toml or manual parser
+  - [ ] Validate all fields
+  - [ ] Merge with CLI flags (CLI overrides config)
+  - [ ] Default locations: `./.pyjamaz.toml`, `~/.config/pyjamaz/config.toml`
+- [ ] Add CLI flag `--config` (specify config file path)
+- [ ] Unit tests (6+ tests)
+  - [ ] Parse valid config
+  - [ ] Handle missing fields (defaults)
+  - [ ] Validate invalid values
+  - [ ] CLI overrides config
+  - [ ] Multiple config file locations
+- [ ] Documentation
+  - [ ] Create docs/CONFIG.md with full schema
+  - [ ] Add examples for common use cases
+  - [ ] Document precedence: CLI > config file > defaults
+
+---
+
+### Phase 7: Regression Testing with Golden Snapshots
+
+**Status**: ⚪ Not Started
+
+- [ ] Create golden snapshot system
+  - [ ] Hash all test outputs (Blake3)
+  - [ ] Store in `testdata/golden/v0.5.0/hashes.jsonl`
+  - [ ] Format: `{"test":"kodak/kodim01.png","format":"jpeg","hash":"abc123..."}`
+- [ ] Update conformance runner
+  - [ ] Compare current output hash vs golden
+  - [ ] Fail if hash mismatch (unless --update-golden)
+  - [ ] Report hash differences clearly
+- [ ] Add CLI flag `--update-golden`
+  - [ ] Regenerate all golden hashes
+  - [ ] Require confirmation (interactive mode)
+  - [ ] Update testdata/golden/v{version}/
+- [ ] CI integration
+  - [ ] Run conformance tests on every PR
+  - [ ] Block merge if golden hashes change without version bump
+  - [ ] Auto-comment with hash diff in PR
+- [ ] Documentation
+  - [ ] Document golden snapshot workflow
+  - [ ] When to update goldens (version bumps only)
+  - [ ] How to review hash changes
+
+---
+
+### Phase 8: Enhanced Conformance Testing
+
+**Status**: ⚪ Not Started
+
+**Problem**: Current conformance tests pass with 100% compression (no size reduction) because PNGSuite consists of tiny, already-optimal PNGs. Original file baseline correctly prevents size regressions, but tests don't validate actual optimization capability.
+
+**Solution**: Add compressible test images and category-based compression thresholds.
+
+- [ ] Create compressible test images
+  - [ ] Large uncompressed PNGs (24-bit RGB, no compression)
+  - [ ] High-quality JPEGs (quality=100) that can be recompressed
+  - [ ] Photographic images with text/gradients (Kodak-style)
+  - [ ] Store in `testdata/conformance/compressible/`
+  - [ ] Target: 20-30 images covering various content types
+- [ ] Categorize existing tests
+  - [ ] `tiny-optimal`: Already optimal, expect ratio ≥ 95% (keep original)
+  - [ ] `compressible`: Should compress, expect ratio ≤ 90%
+  - [ ] `photographic`: Should optimize well, expect ratio ≤ 60% with JPEG
+  - [ ] Add category metadata to conformance runner
+- [ ] Update conformance runner
+  - [ ] Read category from filename pattern or metadata file
+  - [ ] Apply category-specific pass/fail thresholds
+  - [ ] **FAIL** if compressible image shows 100% ratio (no optimization)
+  - [ ] **FAIL** if photographic image shows >70% ratio (poor optimization)
+  - [ ] Report: "FAIL: Expected compression <90%, got 100.0% (original kept)"
+- [ ] Add statistics per category
+  - [ ] Avg compression ratio per category
+  - [ ] Format preference per category (e.g., JPEG for photos, PNG for graphics)
+  - [ ] Perceptual quality scores per category
+- [ ] Documentation
+  - [ ] Update CONFORMANCE_TODO.md with new test strategy
+  - [ ] Document category definitions and thresholds
+  - [ ] Add examples of passing/failing tests
+
+**Success Criteria**:
+- Tiny-optimal tests: 100% pass, ratio ≥ 95% (original baseline working)
+- Compressible tests: 100% pass, ratio ≤ 90% (actual optimization working)
+- Photographic tests: 100% pass, ratio ≤ 60% (format selection working)
+
+---
+
 ## Milestone 1.0.0 - Production Ready
 
 **Goal**: Stabilize API, comprehensive testing, security audit, cross-platform release
@@ -575,13 +755,14 @@ This TODO tracks the implementation roadmap from MVP to production-ready v1.0.
 
 ### Velocity Metrics
 
-| Milestone            | Tasks | Completed | In Progress | Remaining | % Done  |
-| -------------------- | ----- | --------- | ----------- | --------- | ------- |
-| 0.1.0 MVP            | 82    | 82        | 0           | 0         | 100% ✅ |
-| 0.2.0 Parallel       | 8     | 8         | 0           | 0         | 100% ✅ |
-| 0.3.0 Full Codecs    | 4     | 4         | 0           | 0         | 100% ✅ |
-| 0.4.0 Metrics & HTTP | ~40   | 3         | 1           | ~36       | ~10%    |
-| 1.0.0 Production     | ~30   | 0         | 0           | ~30       | 0%      |
+| Milestone               | Tasks | Completed | In Progress | Remaining | % Done  |
+| ----------------------- | ----- | --------- | ----------- | --------- | ------- |
+| 0.1.0 MVP               | 82    | 82        | 0           | 0         | 100% ✅ |
+| 0.2.0 Parallel          | 8     | 8         | 0           | 0         | 100% ✅ |
+| 0.3.0 Full Codecs       | 4     | 4         | 0           | 0         | 100% ✅ |
+| 0.4.0 Perceptual        | ~20   | 3         | 1           | ~16       | ~20%    |
+| 0.5.0 Advanced CLI      | ~50   | 0         | 0           | ~50       | 0%      |
+| 1.0.0 Production        | ~30   | 0         | 0           | ~30       | 0%      |
 
 ### Recent Completions
 
@@ -759,18 +940,26 @@ This TODO tracks the implementation roadmap from MVP to production-ready v1.0.
 - [x] **Milestone 0.2.0** ✅ - Parallel Optimization (8 tasks, 1.2-1.4x speedup)
 - [x] **Milestone 0.3.0** ✅ - Full Codec Support (4 tasks, WebP/AVIF via libvips)
 
-**Next Up - Milestone 0.4.0**: Perceptual Metrics & Advanced Features
+**Current - Milestone 0.4.0**: Perceptual Metrics (DSSIM integration)
 
-- [ ] **Phase 1**: Implement real Butteraugli/DSSIM metrics (FFI bindings, testing)
-- [ ] **Phase 2**: Dual-constraint validation (size + diff enforcement)
-- [ ] **Phase 3**: Enhanced manifest & advanced CLI flags
-- [ ] **Phase 4**: Perceptual quality conformance tests
-- [ ] **Phase 5**: Caching layer
-- [ ] **Phase 6**: HTTP mode (POST /optimize endpoint)
-- [ ] **Phase 7**: Config file support (TOML)
-- [ ] **Phase 8-11**: Content-aware heuristics, animation, observability, Docker
+- [x] **Phase 1**: DSSIM integration complete (FFI bindings, 6 unit tests)
+- [x] **Phase 2**: Dual-constraint validation (size + diff enforcement)
+- [x] **Phase 3**: Enhanced manifest with perceptual scores
+- [x] **Phase 4**: Perceptual quality conformance tests (92% pass rate)
+- [ ] **Remaining**: Butteraugli integration (deferred to v0.5.0)
 
-**Status**: All core functionality complete. Next milestone focuses on production-readiness features.
+**Next Up - Milestone 0.5.0**: Advanced CLI & Production Features
+
+- [ ] **Phase 1**: Butteraugli integration (FFI bindings, testing)
+- [ ] **Phase 2**: Advanced CLI flags (--max-diff, --metric, --sharpen, --flatten)
+- [ ] **Phase 3**: Exit codes (0-14 for various scenarios)
+- [ ] **Phase 4**: Caching layer (content-addressed cache)
+- [ ] **Phase 5**: HTTP mode (POST /optimize endpoint)
+- [ ] **Phase 6**: Config file support (TOML)
+- [ ] **Phase 7**: Regression testing with golden snapshots
+- [ ] **Phase 8**: Enhanced conformance with compression thresholds
+
+**Status**: Core perceptual validation complete. Next milestone adds production-ready features.
 
 ### Testing Status (✅ UNBLOCKED)
 
@@ -935,13 +1124,29 @@ The `src/test/conformance_runner.zig` will be updated to:
 ---
 
 **Last Updated**: 2025-10-30
-**Roadmap Version**: 2.0.0
+**Roadmap Version**: 3.0.0
 
 This is a living document - update as implementation progresses!
 
 ---
 
 ## Changelog
+
+**v3.0.0 (2025-10-30)**: Major compaction + v0.5.0 milestone created
+
+- **Compacted completed milestones**: 0.1.0, 0.2.0, 0.3.0 reduced to 3-5 bullets each
+- **Created v0.5.0 milestone**: Advanced CLI & Production Features (8 phases, ~50 tasks)
+  - Butteraugli integration
+  - Advanced CLI flags (--max-diff, --metric, --sharpen, --flatten)
+  - Exit codes (0-14 for various failure modes)
+  - Caching layer (content-addressed cache with Blake3)
+  - HTTP mode (POST /optimize endpoint)
+  - Config file support (TOML)
+  - Regression testing with golden snapshots
+  - **Phase 8: Enhanced conformance testing** - Addresses issue where all tests pass with 100% compression
+- **Split v0.4.0 scope**: Narrowed to just perceptual metrics (DSSIM complete, ~20 tasks)
+- **Updated progress table**: Reflects v0.4.0 at ~20% complete, v0.5.0 at 0%
+- **Roadmap now covers**: v0.4.0 (current) → v0.5.0 (next) → v1.0.0 (production)
 
 **v2.0.0 (2025-10-30)**: Major restructure after v0.3.0 completion
 
