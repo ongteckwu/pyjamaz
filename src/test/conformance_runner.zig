@@ -80,10 +80,12 @@ pub fn main() !void {
     };
 
     const test_suites = [_]TestSuite{
+        .{ .path = "testdata/conformance/kodak", .name = "Kodak" },
         .{ .path = "testdata/conformance/pngsuite", .name = "PNGSuite" },
         .{ .path = "testdata/conformance/webp", .name = "WebP" },
         .{ .path = "testdata/conformance/jpeg", .name = "JPEG" },
         .{ .path = "testdata/conformance/samples", .name = "Samples" },
+        .{ .path = "testdata/conformance/testimages", .name = "TestImages" },
     };
 
     var all_results = std.ArrayList(TestResult){};
@@ -125,7 +127,9 @@ pub fn main() !void {
             const is_image = std.mem.endsWith(u8, entry.name, ".png") or
                 std.mem.endsWith(u8, entry.name, ".jpg") or
                 std.mem.endsWith(u8, entry.name, ".jpeg") or
-                std.mem.endsWith(u8, entry.name, ".webp");
+                std.mem.endsWith(u8, entry.name, ".webp") or
+                std.mem.endsWith(u8, entry.name, ".tif") or
+                std.mem.endsWith(u8, entry.name, ".tiff");
 
             if (!is_image) continue;
 
@@ -417,7 +421,8 @@ fn runOptimizationTest(allocator: Allocator, input_path: []const u8) !TestResult
 
     // Create optimization job with default settings
     var job = optimizer.OptimizationJob.init(input_path, output_path);
-    job.formats = &[_]ImageFormat{ .jpeg, .png };
+    // WebP, JPEG, PNG supported - AVIF excluded due to libvips compatibility issues
+    job.formats = &[_]ImageFormat{ .webp, .jpeg, .png };
     job.max_bytes = null; // No size constraint for conformance
 
     // Run optimization

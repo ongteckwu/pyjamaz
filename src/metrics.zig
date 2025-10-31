@@ -2,8 +2,9 @@
 //!
 //! This module provides perceptual diff scoring to ensure optimized images
 //! maintain visual quality. Supported metrics:
-//! - Butteraugli (psychovisual distance)
-//! - DSSIM (structural similarity)
+//! - Butteraugli (psychovisual distance) - STUB, not implemented
+//! - DSSIM (structural similarity) - v0.4.0
+//! - SSIMULACRA2 (perceptual similarity) - v0.5.0
 //!
 //! Tiger Style: Bounded operations, explicit error handling
 
@@ -11,6 +12,7 @@ const std = @import("std");
 const Allocator = std.mem.Allocator;
 const ImageBuffer = @import("types/image_buffer.zig").ImageBuffer;
 const dssim = @import("metrics/dssim.zig");
+const ssimulacra2 = @import("metrics/ssimulacra2.zig");
 
 pub const MetricError = error{
     UnsupportedMetric,
@@ -22,8 +24,9 @@ pub const MetricError = error{
 
 /// Supported perceptual metrics
 pub const MetricType = enum {
-    butteraugli,
-    dssim,
+    butteraugli, // STUB - not implemented (use ssimulacra2 instead)
+    dssim, // v0.4.0 - Structural dissimilarity
+    ssimulacra2, // v0.5.0 - Perceptual similarity (recommended)
     none, // For MVP - no perceptual checking
 };
 
@@ -66,6 +69,7 @@ pub fn computePerceptualDiff(
     const result = switch (metric) {
         .butteraugli => try computeButteraugli(allocator, baseline, candidate),
         .dssim => try computeDSSIM(allocator, baseline, candidate),
+        .ssimulacra2 => try computeSSIMULACRA2(allocator, baseline, candidate),
         .none => 0.0, // MVP: no perceptual checking
     };
 
@@ -130,12 +134,43 @@ fn computeDSSIM(
     };
 }
 
+/// Compute SSIMULACRA2 (perceptual similarity)
+///
+/// SSIMULACRA2 returns a similarity score (higher = more similar).
+/// This function converts it to a distance metric (lower = more similar)
+/// to maintain API consistency with other metrics.
+///
+/// Returns distance where:
+/// - 0.0 = identical (score 100)
+/// - 0.0-0.001 = barely noticeable (score 95-100)
+/// - 0.001-0.002 = small differences (score 90-95)
+/// - 0.002+ = noticeable differences (score <90)
+///
+/// Tiger Style: Bounded iteration, memory-safe
+/// v0.5.0: SSIMULACRA2 integration
+fn computeSSIMULACRA2(
+    allocator: Allocator,
+    baseline: *const ImageBuffer,
+    candidate: *const ImageBuffer,
+) MetricError!f64 {
+    const score = ssimulacra2.compute(allocator, baseline, candidate) catch |err| {
+        std.log.err("SSIMULACRA2 computation failed: {}", .{err});
+        return MetricError.ComputeFailed;
+    };
+
+    // Convert similarity score (0-100, higher=better) to distance (0+, lower=better)
+    const distance = ssimulacra2.scoreToDistance(score);
+
+    return distance;
+}
+
 /// Get recommended threshold for a metric
 /// These are conservative values - most users want higher quality
 pub fn getRecommendedThreshold(metric: MetricType) f64 {
     return switch (metric) {
         .butteraugli => 1.5, // Noticeable difference threshold
         .dssim => 0.01, // Small difference threshold
+        .ssimulacra2 => 0.002, // Converted from score ~90 (acceptable quality)
         .none => std.math.floatMax(f64), // Effectively disabled
     };
 }
@@ -149,6 +184,7 @@ test "getRecommendedThreshold returns sensible values" {
 
     try testing.expectApproxEqAbs(1.5, getRecommendedThreshold(.butteraugli), 0.01);
     try testing.expectApproxEqAbs(0.01, getRecommendedThreshold(.dssim), 0.001);
+    try testing.expectApproxEqAbs(0.002, getRecommendedThreshold(.ssimulacra2), 0.0001);
     try testing.expect(getRecommendedThreshold(.none) > 1000.0);
 }
 
@@ -236,15 +272,16 @@ test "computePerceptualDiff with butteraugli stub returns UnsupportedMetric" {
     try testing.expectError(MetricError.UnsupportedMetric, result);
 }
 
-test "computePerceptualDiff with dssim stub returns UnsupportedMetric" {
+test "computePerceptualDiff validates image size limits" {
     const testing = std.testing;
     const allocator = testing.allocator;
 
+    // Create image that exceeds MAX_PIXELS (500 megapixels)
     var baseline = ImageBuffer{
         .data = &[_]u8{},
-        .width = 100,
-        .height = 100,
-        .stride = 300,
+        .width = 50000, // 50k x 50k = 2.5 gigapixels > 500 megapixels
+        .height = 50000,
+        .stride = 150000,
         .channels = 3,
         .allocator = allocator,
         .color_space = 0,
@@ -252,14 +289,14 @@ test "computePerceptualDiff with dssim stub returns UnsupportedMetric" {
 
     var candidate = ImageBuffer{
         .data = &[_]u8{},
-        .width = 100,
-        .height = 100,
-        .stride = 300,
+        .width = 50000,
+        .height = 50000,
+        .stride = 150000,
         .channels = 3,
         .allocator = allocator,
         .color_space = 0,
     };
 
-    const result = computePerceptualDiff(allocator, &baseline, &candidate, .dssim);
-    try testing.expectError(MetricError.UnsupportedMetric, result);
+    const result = computePerceptualDiff(allocator, &baseline, &candidate, .none);
+    try testing.expectError(MetricError.InvalidImage, result);
 }

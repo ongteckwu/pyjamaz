@@ -28,13 +28,21 @@ Pyjamaz automatically compresses images to the smallest possible size while main
 
 - **Zig**: 0.15.0 or later ([installation guide](https://ziglang.org/download/))
 - **libvips**: 8.12+ for image processing ([installation guide](https://www.libvips.org/install.html))
-- **libjpeg-turbo**: For JPEG encoding (usually bundled with libvips)
+- **Required codecs** (for supported formats):
+  - **libjpeg-turbo**: JPEG encoding/decoding ✅
+  - **libpng**: PNG encoding/decoding ✅
+  - **libwebp**: WebP encoding/decoding ✅
+
+**Note**: AVIF support (via libheif) is experimental and currently disabled due to compatibility issues with libvips. WebP provides similar compression ratios (80-90% reduction on PNGs).
 
 ### Installation (macOS)
 
 ```bash
-# Install dependencies via Homebrew
-brew install vips jpeg-turbo
+# Install all dependencies via Homebrew
+brew install vips jpeg-turbo libpng webp libheif
+
+# Verify AVIF support (should show heif in supported formats)
+vips --vips-version
 
 # Clone the repository
 git clone https://github.com/yourusername/pyjamaz.git
@@ -46,24 +54,29 @@ zig build
 # Run tests to verify installation
 zig build test
 
-# Run conformance tests (208 images, should see 100% pass rate)
+# Run conformance tests (211 images, should see 93%+ pass rate)
 zig build conformance
 ```
 
 ### Installation (Linux)
 
 ```bash
-# Ubuntu/Debian
-sudo apt-get install libvips-dev libjpeg-turbo8-dev
+# Ubuntu/Debian (install all format codecs)
+sudo apt-get install libvips-dev libjpeg-turbo8-dev libpng-dev libwebp-dev libheif-dev
 
 # Fedora/RHEL
-sudo dnf install vips-devel libjpeg-turbo-devel
+sudo dnf install vips-devel libjpeg-turbo-devel libpng-devel libwebp-devel libheif-devel
+
+# Arch Linux
+sudo pacman -S vips libjpeg-turbo libpng libwebp libheif
 
 # Build Pyjamaz
 git clone https://github.com/yourusername/pyjamaz.git
 cd pyjamaz
 zig build
 ```
+
+**Note**: If any codec is missing, Pyjamaz will gracefully skip that format and use available ones.
 
 ---
 

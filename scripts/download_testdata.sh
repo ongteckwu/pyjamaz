@@ -13,7 +13,7 @@
 set -euo pipefail
 
 TESTDATA_DIR="testdata/conformance"
-TOTAL_SIZE_ESTIMATE="~200 MB"
+TOTAL_SIZE_ESTIMATE="~300 MB"
 FORCE_DOWNLOAD=false
 
 # Parse arguments
@@ -142,15 +142,15 @@ echo ""
 echo "→ Downloading JPEG Test Samples (~10MB)"
 mkdir -p "$TESTDATA_DIR/jpeg"
 
-# Tecnick JPEG test images
+# libjpeg-turbo test images (stable, verified)
+# Note: testimgari.jpg removed (uses arithmetic coding, not widely supported)
 JPEG_SAMPLES=(
-  "https://filesamples.com/samples/image/jpg/sample_640%C3%97426.jpg:sample_640x426.jpg"
-  "https://filesamples.com/samples/image/jpg/sample_1920%C3%971280.jpg:sample_1920x1280.jpg"
-  "https://filesamples.com/samples/image/jpg/sample_1280%C3%97853.jpg:sample_1280x853.jpg"
+  "https://raw.githubusercontent.com/libjpeg-turbo/libjpeg-turbo/main/testimages/testorig.jpg|testorig.jpg"
+  "https://raw.githubusercontent.com/libjpeg-turbo/libjpeg-turbo/main/testimages/testimgint.jpg|testimgint.jpg"
 )
 
 for entry in "${JPEG_SAMPLES[@]}"; do
-  IFS=':' read -r url filename <<< "$entry"
+  IFS='|' read -r url filename <<< "$entry"
   OUTPUT="$TESTDATA_DIR/jpeg/$filename"
 
   if [ -f "$OUTPUT" ] && [ "$FORCE_DOWNLOAD" = false ]; then
@@ -174,15 +174,15 @@ echo "→ Downloading Sample Images (various formats, ~15MB)"
 mkdir -p "$TESTDATA_DIR/samples"
 
 SAMPLE_IMAGES=(
-  "https://raw.githubusercontent.com/image-rs/image-png/main/tests/pngsuite/basi0g01.png:basi0g01.png"
-  "https://raw.githubusercontent.com/image-rs/image-png/main/tests/pngsuite/basi0g02.png:basi0g02.png"
-  "https://raw.githubusercontent.com/image-rs/image-png/main/tests/pngsuite/basi0g04.png:basi0g04.png"
-  "https://raw.githubusercontent.com/image-rs/image-png/main/tests/pngsuite/basi0g08.png:basi0g08.png"
-  "https://raw.githubusercontent.com/image-rs/image-png/main/tests/pngsuite/basi2c08.png:basi2c08.png"
+  "https://raw.githubusercontent.com/richzhang/PerceptualSimilarity/master/imgs/ex_dir0.png|ex_dir0.png"
+  "https://raw.githubusercontent.com/richzhang/PerceptualSimilarity/master/imgs/ex_ref.png|ex_ref.png"
+  "https://raw.githubusercontent.com/richzhang/PerceptualSimilarity/master/imgs/ex_p0.png|ex_p0.png"
+  "https://raw.githubusercontent.com/richzhang/PerceptualSimilarity/master/imgs/ex_p1.png|ex_p1.png"
+  "https://raw.githubusercontent.com/richzhang/PerceptualSimilarity/master/imgs/ex_dir1.png|ex_dir1.png"
 )
 
 for entry in "${SAMPLE_IMAGES[@]}"; do
-  IFS=':' read -r url filename <<< "$entry"
+  IFS='|' read -r url filename <<< "$entry"
   OUTPUT="$TESTDATA_DIR/samples/$filename"
 
   if [ -f "$OUTPUT" ] && [ "$FORCE_DOWNLOAD" = false ]; then
@@ -199,6 +199,59 @@ for entry in "${SAMPLE_IMAGES[@]}"; do
     FAILED=$((FAILED + 1))
   fi
 done
+
+# USC-SIPI Image Database (classic test images)
+echo ""
+echo "→ Downloading USC-SIPI Test Images (classic benchmarks, ~10MB)"
+mkdir -p "$TESTDATA_DIR/testimages"
+
+# Classic test images from GitHub mirrors (stable)
+SIPI_IMAGES=(
+  "https://sipi.usc.edu/database/misc/4.2.03.tiff|lenna.tiff"
+  "https://www.hlevkin.com/TestImages/peppers_color.tif|peppers.tif"
+  "https://www.hlevkin.com/TestImages/mandril_color.tif|baboon.tif"
+  "https://github.com/richzhang/PerceptualSimilarity/raw/master/imgs/ex_p1.png|boat_alt.png"
+  "https://github.com/richzhang/PerceptualSimilarity/raw/master/imgs/ex_ref.png|zelda_alt.png"
+)
+
+for entry in "${SIPI_IMAGES[@]}"; do
+  IFS='|' read -r url filename <<< "$entry"
+  OUTPUT="$TESTDATA_DIR/testimages/$filename"
+
+  if [ -f "$OUTPUT" ] && [ "$FORCE_DOWNLOAD" = false ]; then
+    echo "  ⊘ $filename (already exists)"
+    SKIPPED=$((SKIPPED + 1))
+    continue
+  fi
+
+  if download_file "$url" "$OUTPUT"; then
+    echo "  ✓ $filename"
+    SUCCESS=$((SUCCESS + 1))
+  else
+    echo "  ✗ $filename (failed)"
+    FAILED=$((FAILED + 1))
+  fi
+done
+
+# Note: Tecnick test patterns require manual download
+# Visit: https://tecnick.com/public/code/cp_dpage.php?aiocp_dp=util_test_patterns
+
+# CLIC Professional Dataset (high-quality compression benchmarks)
+echo ""
+echo "→ Downloading CLIC Professional Samples (~50MB)"
+mkdir -p "$TESTDATA_DIR/clic"
+
+CLIC_IMAGES=(
+  "https://data.vision.ee.ethz.ch/cvl/DIV2K/DIV2K_train_HR.zip:clic_placeholder"
+)
+
+echo "  ⊘ CLIC dataset requires manual download (too large)"
+echo "  → Visit: https://www.compression.cc/challenge/"
+SKIPPED=$((SKIPPED + 1))
+
+# Note: Additional JPEG and AVIF samples can be added manually
+# JPEG: https://github.com/libjpeg-turbo/libjpeg-turbo/tree/main/testimages
+# AVIF: https://github.com/AOMediaCodec/av1-avif (requires AVIF encoder support)
 
 # Summary
 echo ""
@@ -217,10 +270,12 @@ fi
 # Count files per suite
 echo ""
 echo "=== Test Suite Breakdown ==="
-for suite in kodak pngsuite webp jpeg samples; do
+for suite in kodak pngsuite webp jpeg samples testimages tecnick jpeg_diverse avif clic; do
   if [ -d "$TESTDATA_DIR/$suite" ]; then
-    COUNT=$(find "$TESTDATA_DIR/$suite" -type f \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" -o -name "*.webp" \) 2>/dev/null | wc -l | xargs)
-    echo "  $suite: $COUNT images"
+    COUNT=$(find "$TESTDATA_DIR/$suite" -type f \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" -o -name "*.webp" -o -name "*.avif" \) 2>/dev/null | wc -l | xargs)
+    if [ "$COUNT" -gt 0 ]; then
+      echo "  $suite: $COUNT images"
+    fi
   fi
 done
 

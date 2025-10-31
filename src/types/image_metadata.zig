@@ -28,6 +28,16 @@ pub const ImageFormat = enum(u8) {
             .unknown => "",
         };
     }
+
+    /// Parse format from string (case-insensitive)
+    pub fn fromString(s: []const u8) ?ImageFormat {
+        // Convert to lowercase for case-insensitive comparison
+        if (std.ascii.eqlIgnoreCase(s, "jpeg") or std.ascii.eqlIgnoreCase(s, "jpg")) return .jpeg;
+        if (std.ascii.eqlIgnoreCase(s, "png")) return .png;
+        if (std.ascii.eqlIgnoreCase(s, "webp")) return .webp;
+        if (std.ascii.eqlIgnoreCase(s, "avif")) return .avif;
+        return null;
+    }
 };
 
 /// EXIF orientation values (standard)
@@ -280,4 +290,21 @@ test "ImageMetadata memory leak check" {
     const fake_profile = [_]u8{ 1, 2, 3 };
     try metadata.setIccProfile(testing.allocator, &fake_profile);
     metadata.deinit(); // Should free ICC profile
+}
+
+test "ImageFormat.fromString parses formats correctly" {
+    const testing = std.testing;
+
+    try testing.expectEqual(ImageFormat.jpeg, ImageFormat.fromString("jpeg").?);
+    try testing.expectEqual(ImageFormat.jpeg, ImageFormat.fromString("JPEG").?);
+    try testing.expectEqual(ImageFormat.jpeg, ImageFormat.fromString("jpg").?);
+    try testing.expectEqual(ImageFormat.jpeg, ImageFormat.fromString("JPG").?);
+    try testing.expectEqual(ImageFormat.png, ImageFormat.fromString("png").?);
+    try testing.expectEqual(ImageFormat.png, ImageFormat.fromString("PNG").?);
+    try testing.expectEqual(ImageFormat.webp, ImageFormat.fromString("webp").?);
+    try testing.expectEqual(ImageFormat.webp, ImageFormat.fromString("WebP").?);
+    try testing.expectEqual(ImageFormat.avif, ImageFormat.fromString("avif").?);
+    try testing.expectEqual(ImageFormat.avif, ImageFormat.fromString("AVIF").?);
+    try testing.expect(ImageFormat.fromString("invalid") == null);
+    try testing.expect(ImageFormat.fromString("") == null);
 }

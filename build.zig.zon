@@ -1,0 +1,23 @@
+.{
+    .name = .pyjamaz,
+    .version = "0.4.0",
+    .fingerprint = 0x810836610bdacfe0,
+    .minimum_zig_version = "0.15.1",
+
+    .dependencies = .{
+        .fssimu2 = .{
+            .url = "https://github.com/gianni-rosato/fssimu2/archive/refs/heads/main.tar.gz",
+            .hash = "fssimu2-0.1.1-83U3DbAfAQCjWYwf2KSHecW4lDAAAO62RbD5xzYCtK1m",
+        },
+    },
+
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+        "testdata",
+        "docs",
+        "LICENSE",
+        "README.md",
+    },
+}

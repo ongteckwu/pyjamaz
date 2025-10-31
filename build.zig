@@ -4,6 +4,13 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
+    // v0.5.0: SSIMULACRA2 dependency
+    const fssimu2_dep = b.dependency("fssimu2", .{
+        .target = target,
+        .optimize = optimize,
+    });
+    const fssimu2_module = fssimu2_dep.module("fssimu2");
+
     // Main executable
     const exe = b.addExecutable(.{
         .name = "pyjamaz",
@@ -13,6 +20,7 @@ pub fn build(b: *std.Build) void {
             .optimize = optimize,
         }),
     });
+    exe.root_module.addImport("fssimu2", fssimu2_module);
 
     // C library dependencies
     // libvips is now required for Phase 3
@@ -47,6 +55,7 @@ pub fn build(b: *std.Build) void {
             .optimize = optimize,
         }),
     });
+    unit_tests.root_module.addImport("fssimu2", fssimu2_module);
 
     // Link C libraries for tests too
     unit_tests.linkSystemLibrary("vips");
@@ -72,6 +81,7 @@ pub fn build(b: *std.Build) void {
             .optimize = optimize,
         }),
     });
+    integration_tests.root_module.addImport("fssimu2", fssimu2_module);
 
     // Link C libraries for integration tests
     integration_tests.linkSystemLibrary("vips");
@@ -97,6 +107,7 @@ pub fn build(b: *std.Build) void {
             .optimize = optimize,
         }),
     });
+    conformance_exe.root_module.addImport("fssimu2", fssimu2_module);
 
     // Link C libraries for conformance tests
     conformance_exe.linkSystemLibrary("vips");
@@ -125,6 +136,7 @@ pub fn build(b: *std.Build) void {
             .optimize = optimize,
         }),
     });
+    benchmark_exe.root_module.addImport("fssimu2", fssimu2_module);
 
     // Link C libraries for benchmarks
     benchmark_exe.linkSystemLibrary("vips");
