@@ -30,6 +30,16 @@ package-lock.json
 yarn.lock
 *.tgz
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+
 # Test artifacts
 /test262/
 test-results/
