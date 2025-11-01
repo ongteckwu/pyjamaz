@@ -1,5 +1,5 @@
 {
-  "name": "@pyjamaz/nodejs",
+  "name": "pyjamaz",
   "version": "1.0.0",
   "description": "Node.js bindings for Pyjamaz - high-performance image optimizer",
   "main": "dist/index.js",
@@ -13,8 +13,16 @@
     "test:coverage": "jest --coverage",
     "lint": "eslint src tests examples --ext .ts,.js",
     "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.{ts,js}\" \"examples/**/*.{ts,js}\"",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "postinstall": "node install.js"
   },
+  "files": [
+    "dist/",
+    "native/",
+    "install.js",
+    "README.md",
+    "LICENSE"
+  ],
   "keywords": [
     "image",
     "optimization",

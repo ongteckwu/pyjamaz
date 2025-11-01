@@ -34,7 +34,7 @@ zig build
 
 # Install Python bindings
 cd bindings/python
-pip install -e .
+uv pip install -e .
 ```
 
 ### Verify Installation
@@ -609,7 +609,7 @@ result = pyjamaz.optimize_image(
 
 ```bash
 cd bindings/python
-pip install -e .
+uv pip install -e .
 ```
 
 ### Optimization Always Fails

@@ -53,26 +53,49 @@ const OptimizeResultPtr = ref.refType(OptimizeResultStruct);
 
 /**
  * Find the Pyjamaz shared library
+ *
+ * Search order:
+ * 1. PYJAMAZ_LIB_PATH environment variable
+ * 2. Bundled library (for npm package installations)
+ * 3. Development build (zig-out/lib)
+ * 4. System paths
  */
 function findLibrary(): string {
-  // Check environment variable first
+  // 1. Check environment variable first (highest priority)
   const envPath = process.env.PYJAMAZ_LIB_PATH;
   if (envPath && fs.existsSync(envPath)) {
     return envPath;
   }
 
-  // Try relative paths from bindings directory
-  const possiblePaths = [
-    // From bindings/nodejs to zig-out/lib
+  const possiblePaths: string[] = [];
+
+  // 2. Check bundled library (npm package installation)
+  // When installed via npm, libraries are in ../native/ relative to dist/
+  const bundledPaths = [
+    path.join(__dirname, '..', 'native', 'libpyjamaz.dylib'),
+    path.join(__dirname, '..', 'native', 'libpyjamaz.so'),
+    path.join(__dirname, '..', 'native', 'pyjamaz.dll'),
+  ];
+  possiblePaths.push(...bundledPaths);
+
+  // 3. Check development build (from source)
+  // From bindings/nodejs/dist to zig-out/lib
+  const devPaths = [
     path.join(__dirname, '..', '..', '..', 'zig-out', 'lib', 'libpyjamaz.dylib'),
     path.join(__dirname, '..', '..', '..', 'zig-out', 'lib', 'libpyjamaz.so'),
     path.join(__dirname, '..', '..', '..', 'zig-out', 'lib', 'pyjamaz.dll'),
-    // System paths
+  ];
+  possiblePaths.push(...devPaths);
+
+  // 4. Check system paths
+  const systemPaths = [
     '/usr/local/lib/libpyjamaz.dylib',
     '/usr/local/lib/libpyjamaz.so',
     '/usr/lib/libpyjamaz.so',
   ];
+  possiblePaths.push(...systemPaths);
 
+  // Try all paths in order
   for (const libPath of possiblePaths) {
     if (fs.existsSync(libPath)) {
       return libPath;
@@ -80,8 +103,12 @@ function findLibrary(): string {
   }
 
   throw new Error(
-    'Could not find libpyjamaz shared library. ' +
-    'Please build it first (zig build) or set PYJAMAZ_LIB_PATH environment variable.'
+    'Could not find libpyjamaz shared library. Tried:\n' +
+    possiblePaths.map(p => `  - ${p}`).join('\n') + '\n\n' +
+    'Please either:\n' +
+    '  1. Install via npm (npm install pyjamaz)\n' +
+    '  2. Build from source (zig build)\n' +
+    '  3. Set PYJAMAZ_LIB_PATH environment variable'
   );
 }
 

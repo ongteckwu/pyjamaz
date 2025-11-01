@@ -28,13 +28,13 @@ zig build
 
 # Install Python bindings
 cd bindings/python
-pip install -e .
+uv pip install -e .
 ```
 
 ### From PyPI (Coming Soon)
 
 ```bash
-pip install pyjamaz
+uv pip install pyjamaz
 ```
 
 ## Quick Start
@@ -327,7 +327,7 @@ async def optimize_image_endpoint(
 
 ```bash
 # Install dev dependencies
-pip install -e ".[dev]"
+uv pip install -e ".[dev]"
 
 # Run tests
 pytest
@@ -392,7 +392,7 @@ If you get `RuntimeError: Could not find libpyjamaz shared library`:
 Make sure you're in the correct directory or have installed the package:
 
 ```bash
-pip install -e .
+uv pip install -e .
 ```
 
 ## License

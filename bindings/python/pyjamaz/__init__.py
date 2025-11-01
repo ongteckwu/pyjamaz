@@ -23,23 +23,41 @@ def _find_library():
         if os.path.exists(lib_path):
             return lib_path
 
-    # Check relative to this file (development install)
-    package_dir = Path(__file__).parent.parent.parent.parent
-    lib_dir = package_dir / "zig-out" / "lib"
-
     # Platform-specific library names
     if sys.platform == "darwin":
         lib_name = "libpyjamaz.dylib"
+        libavif_name = "libavif.16.dylib"
     elif sys.platform == "win32":
         lib_name = "pyjamaz.dll"
+        libavif_name = "avif.dll"
     else:
         lib_name = "libpyjamaz.so"
+        libavif_name = "libavif.so.16"
 
-    lib_path = lib_dir / lib_name
-    if lib_path.exists():
-        return str(lib_path)
+    # 1. Check bundled libraries (uv pip install - highest priority)
+    package_dir = Path(__file__).parent
+    native_dir = package_dir / "native"
+    bundled_lib = native_dir / lib_name
+    bundled_avif = native_dir / libavif_name
 
-    # Check system paths
+    if bundled_lib.exists():
+        # Pre-load libavif if bundled (required dependency)
+        if bundled_avif.exists():
+            try:
+                ctypes.CDLL(str(bundled_avif))
+            except Exception as e:
+                print(f"Warning: Failed to load bundled libavif: {e}", file=sys.stderr)
+        return str(bundled_lib)
+
+    # 2. Check development install (relative to this file)
+    dev_package_dir = package_dir.parent.parent.parent
+    lib_dir = dev_package_dir / "zig-out" / "lib"
+    dev_lib_path = lib_dir / lib_name
+
+    if dev_lib_path.exists():
+        return str(dev_lib_path)
+
+    # 3. Check system paths (last resort)
     try:
         result = ctypes.util.find_library("pyjamaz")
         if result:
@@ -49,7 +67,11 @@ def _find_library():
 
     raise RuntimeError(
         "Could not find libpyjamaz shared library. "
-        "Set PYJAMAZ_LIB_PATH environment variable or install the library."
+        "Tried locations:\n"
+        f"  1. Bundled: {bundled_lib}\n"
+        f"  2. Development: {dev_lib_path}\n"
+        f"  3. System paths (via ctypes.util.find_library)\n"
+        "Set PYJAMAZ_LIB_PATH environment variable to override."
     )
 
 # Load library

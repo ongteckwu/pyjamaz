@@ -1,0 +1,18 @@
+# Include documentation and metadata
+include README.md
+include LICENSE
+include pyproject.toml
+
+# Include native libraries (will be populated during build)
+recursive-include pyjamaz/native *
+
+# Include tests
+recursive-include tests *.py
+
+# Exclude build artifacts and caches
+global-exclude __pycache__
+global-exclude *.py[cod]
+global-exclude *$py.class
+global-exclude *.so
+global-exclude *.dylib
+global-exclude .DS_Store

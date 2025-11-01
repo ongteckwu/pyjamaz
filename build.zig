@@ -23,25 +23,24 @@ pub fn build(b: *std.Build) void {
     exe.root_module.addImport("fssimu2", fssimu2_module);
 
     // C library dependencies
-    // libvips is now required for Phase 3
-    exe.linkSystemLibrary("vips");
     exe.linkLibC();
 
-    // Phase 4: Codecs - Native decoder/encoder libraries
+    // Native decoder/encoder libraries (Milestone 3 complete!)
     exe.linkSystemLibrary("jpeg"); // libjpeg-turbo (decode + encode)
     exe.linkSystemLibrary("png"); // libpng (decode + encode)
     exe.linkSystemLibrary("webp"); // libwebp (decode + encode)
     exe.linkSystemLibrary("avif"); // libavif (AVIF decode + encode, wraps aom/dav1d)
 
-    // v0.4.0: Perceptual metrics
-    exe.linkSystemLibrary("dssim");
+    // Perceptual metrics
+    exe.linkSystemLibrary("dssim"); // TODO: Replace for MIT licensing
 
     b.installArtifact(exe);
 
     // Shared library for Python/Node.js bindings
+    // TODO: Switch to static linkage after verifying all codecs work standalone
     const lib = b.addLibrary(.{
         .name = "pyjamaz",
-        .linkage = .dynamic,
+        .linkage = .dynamic, // Will change to .static after Phase 1 verification
         .root_module = b.createModule(.{
             .root_source_file = b.path("src/api.zig"),
             .target = target,
@@ -50,12 +49,27 @@ pub fn build(b: *std.Build) void {
         .version = .{ .major = 1, .minor = 0, .patch = 0 },
     });
     lib.root_module.addImport("fssimu2", fssimu2_module);
-    lib.linkSystemLibrary("vips");
-    lib.linkSystemLibrary("jpeg");
-    lib.linkSystemLibrary("png");
-    lib.linkSystemLibrary("webp");
+
+    // Phase 1: Static linking for native codecs
+    // Approach: Link .a files directly for maximum portability
+
+    // Static libraries (from Homebrew) - using absolute paths
+    lib.addObjectFile(.{ .cwd_relative = "/opt/homebrew/opt/jpeg-turbo/lib/libjpeg.a" });
+    lib.addObjectFile(.{ .cwd_relative = "/opt/homebrew/opt/libpng/lib/libpng16.a" });
+    lib.addObjectFile(.{ .cwd_relative = "/opt/homebrew/opt/webp/lib/libwebp.a" });
+    lib.addObjectFile(.{ .cwd_relative = "/opt/homebrew/opt/webp/lib/libsharpyuv.a" }); // Required by libwebp
+    lib.addObjectFile(.{ .cwd_relative = "/opt/homebrew/lib/libdssim.a" });
+
+    // libavif: Keep dynamic for now (building from source is complex)
+    // TODO: Bundle libavif.dylib in wheel/package, or build static version
     lib.linkSystemLibrary("avif");
-    lib.linkSystemLibrary("dssim");
+
+    // Dependencies of static libraries
+    lib.addObjectFile(.{ .cwd_relative = "/opt/homebrew/opt/zlib/lib/libz.a" }); // Required by libpng
+
+    // System frameworks (for libdssim which uses Accelerate framework on macOS)
+    lib.linkFramework("Accelerate");
+
     lib.linkLibC();
     b.installArtifact(lib);
 

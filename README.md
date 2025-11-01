@@ -113,11 +113,11 @@ if result.passed:
 ```bash
 # Install Python bindings
 cd bindings/python
-pip install -e .
+uv pip install -e .
 
 # Run examples
-python examples/basic.py
-python examples/batch.py
+uv run python examples/basic.py
+uv run python examples/batch.py
 ```
 
 **Complete documentation**: See [Python API Reference](docs/PYTHON_API.md) for detailed usage, examples, and integration guides.
@@ -414,14 +414,14 @@ node tests/memory/buffer_memory_test.js
 ```bash
 # Prerequisites
 zig build                          # Build library first
-pip3 install psutil               # Optional: for better memory tracking
+uv pip install psutil               # Optional: for better memory tracking
 
 # Run tests
 cd bindings/python
-python3 tests/memory/gc_verification_test.py
-python3 tests/memory/ctypes_memory_test.py
-python3 tests/memory/error_recovery_test.py
-python3 tests/memory/buffer_memory_test.py
+uv run python tests/memory/gc_verification_test.py
+uv run python tests/memory/ctypes_memory_test.py
+uv run python tests/memory/error_recovery_test.py
+uv run python tests/memory/buffer_memory_test.py
 ```
 
 **Expected Results:**
@@ -471,8 +471,8 @@ cp zig-out/bin/pyjamaz /usr/local/bin/
 
 # Install Python bindings (optional)
 cd bindings/python
-pip install -e .
-python -c "import pyjamaz; print(f'Pyjamaz {pyjamaz.get_version()} installed')"
+uv pip install -e .
+uv run python -c "import pyjamaz; print(f'Pyjamaz {pyjamaz.get_version()} installed')"
 ```
 
 ### Linux (Ubuntu/Debian)
@@ -494,8 +494,8 @@ zig build test
 
 # Install Python bindings (optional)
 cd bindings/python
-pip install -e .
-python -c "import pyjamaz; print(f'Pyjamaz {pyjamaz.get_version()} installed')"
+uv pip install -e .
+uv run python -c "import pyjamaz; print(f'Pyjamaz {pyjamaz.get_version()} installed')"
 ```
 
 ### Windows

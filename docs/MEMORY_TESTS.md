@@ -33,10 +33,10 @@ node tests/memory/buffer_memory_test.js
 
 # Run Python memory tests (manual setup required)
 cd bindings/python
-python3 tests/memory/gc_verification_test.py
-python3 tests/memory/ctypes_memory_test.py
-python3 tests/memory/error_recovery_test.py
-python3 tests/memory/buffer_memory_test.py
+uv run python tests/memory/gc_verification_test.py
+uv run python tests/memory/ctypes_memory_test.py
+uv run python tests/memory/error_recovery_test.py
+uv run python tests/memory/buffer_memory_test.py
 ```
 
 **Note**: Only the Zig memory tests are integrated into the build system. Node.js and Python tests are available but require manual execution after setting up the respective environments. See the "Manual Testing" section below for details.
@@ -121,10 +121,10 @@ node tests/memory/buffer_memory_test.js
 **Python:**
 ```bash
 cd bindings/python
-python3 tests/memory/gc_verification_test.py
-python3 tests/memory/ctypes_memory_test.py
-python3 tests/memory/error_recovery_test.py
-python3 tests/memory/buffer_memory_test.py
+uv run python tests/memory/gc_verification_test.py
+uv run python tests/memory/ctypes_memory_test.py
+uv run python tests/memory/error_recovery_test.py
+uv run python tests/memory/buffer_memory_test.py
 ```
 
 ### Expected Results
@@ -167,7 +167,7 @@ node --expose-gc memory_pressure_test.js
 #### Python - memory_pressure_test.py (~5-10 minutes)
 ```bash
 cd bindings/python/tests/memory
-python3 memory_pressure_test.py
+uv run python memory_pressure_test.py
 ```
 
 **What it tests**:
@@ -471,7 +471,7 @@ Ensure Python can find the module:
 
 ```bash
 cd bindings/python
-python3 -c "import pyjamaz; print(pyjamaz.get_version())"
+uv run python -c "import pyjamaz; print(pyjamaz.get_version())"
 ```
 
 Set library path:
