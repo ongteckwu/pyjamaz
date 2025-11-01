@@ -1,0 +1,24 @@
+{
+  "name": "pyjamaz-basic-usage-example",
+  "version": "1.0.0",
+  "description": "Basic usage examples for Pyjamaz image optimization",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "build": "tsc",
+    "start": "npm run build && node dist/index.js",
+    "start:ts": "ts-node src/index.ts",
+    "test": "npm run build && node dist/index.js"
+  },
+  "dependencies": {
+    "pyjamaz": "file:../../../bindings/nodejs"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

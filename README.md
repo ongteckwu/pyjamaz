@@ -86,7 +86,7 @@ pyjamaz input.jpg --max-bytes 100000
 pyjamaz input.jpg --cache-dir /tmp/cache --cache-max-size 2147483648
 ```
 
-### Python Bindings Usage
+### Python Bindings Usage [Coming Soon]
 
 Pyjamaz can also be used as a Python library for programmatic image optimization:
 
@@ -271,12 +271,12 @@ rm -rf ~/.cache/pyjamaz
 
 **Conformance Test Results** (211 images):
 
-| Test Suite   | Pass Rate         | Avg Compression      | Notes                          |
-| ------------ | ----------------- | -------------------- | ------------------------------ |
-| Kodak        | 24/24 (100%)      | 9.3% of original     | Photographic images            |
-| PNGSuite     | 162/176 (92%)     | High reduction       | 14 intentionally corrupt files |
-| WebP Gallery | 5/5 (100%)        | No regression        | Already optimal                |
-| TestImages   | 2/3 (67%)         | 15.5% of original    | 1 TIFF skipped (not supported) |
+| Test Suite   | Pass Rate         | Avg Compression                         | Notes                          |
+| ------------ | ----------------- | --------------------------------------- | ------------------------------ |
+| Kodak        | 24/24 (100%)      | 9.3% of original                        | Photographic images            |
+| PNGSuite     | 162/176 (92%)     | High reduction                          | 14 intentionally corrupt files |
+| WebP Gallery | 5/5 (100%)        | No regression                           | Already optimal                |
+| TestImages   | 2/3 (67%)         | 15.5% of original                       | 1 TIFF skipped (not supported) |
 | **Overall**  | **196/211 (93%)** | **12.6% of original (87.4% reduction)** | **15 correctly skipped**       |
 
 ### Memory Safety
@@ -368,15 +368,16 @@ pyjamaz/
 
 ### Test Coverage
 
-| Category              | Count | Pass Rate      | Status         |
-| --------------------- | ----- | -------------- | -------------- |
-| **Unit Tests**        | 73    | 100% (73/73)   | ✅ All passing |
-| **Conformance Tests** | 211   | 93% (196/211)  | ✅ Excellent   |
-| **Memory Leak Tests** | All   | 0 leaks        | ✅ Clean       |
-| **Integration Tests** | 8     | 100% (8/8)     | ✅ All passing |
+| Category              | Count | Pass Rate     | Status         |
+| --------------------- | ----- | ------------- | -------------- |
+| **Unit Tests**        | 73    | 100% (73/73)  | ✅ All passing |
+| **Conformance Tests** | 211   | 93% (196/211) | ✅ Excellent   |
+| **Memory Leak Tests** | All   | 0 leaks       | ✅ Clean       |
+| **Integration Tests** | 8     | 100% (8/8)    | ✅ All passing |
 
 **Skipped Tests**:
-- 14 PNGSuite files (intentionally malformed test files: xc*, xd*, xs*, xh*, xlf*)
+
+- 14 PNGSuite files (intentionally malformed test files: xc*, xd*, xs*, xh*, xlf\*)
 - 1 TIFF file (not supported - web formats only)
 
 ### Test Suites
@@ -415,23 +416,28 @@ zig build test -Dtest-filter=optimizer
 #### Conformance Test Modes
 
 **Fast Mode** (default, ~3s):
+
 ```bash
 zig build conformance
 ```
+
 - Verifies: Format support, compression ratio, no crashes
 - DSSIM values: 0.0000 (not computed for speed)
 - Use for: Quick iteration, CI/CD, format verification
 
 **DSSIM Mode** (thorough, ~15-20s):
+
 ```bash
 zig build conformance -Denable-dssim
 ```
+
 - Verifies: All of the above + perceptual quality with DSSIM metric
 - DSSIM values: Real values (e.g., 0.0020, 0.0005, 0.0003)
 - Quality threshold: 0.01 (1% max perceptual difference)
 - Use for: Release testing, quality regression detection, codec validation
 
 **Why 15 Tests are Skipped**:
+
 - **14 PNGSuite files**: Intentionally malformed test files designed to test decoder robustness
   - `xc*`: Invalid color type
   - `xd*`: Invalid bit depth

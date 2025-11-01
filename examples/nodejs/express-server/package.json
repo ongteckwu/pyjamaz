@@ -1,0 +1,28 @@
+{
+  "name": "pyjamaz-express-server-example",
+  "version": "1.0.0",
+  "description": "Express.js server with Pyjamaz image optimization API",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "build": "tsc",
+    "start": "npm run build && node dist/server.js",
+    "dev": "ts-node src/server.ts",
+    "test": "curl -X POST http://localhost:3000/optimize -F 'image=@test-images/sample.jpg' -F 'maxBytes=100000' -o output.jpg"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
+    "pyjamaz": "file:../../../bindings/nodejs"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/multer": "^1.4.11",
+    "@types/node": "^20.10.6",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

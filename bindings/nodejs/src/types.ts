@@ -90,6 +90,18 @@ export interface OptimizeResult {
    * Size of optimized image in bytes
    */
   readonly size: number;
+
+  /**
+   * Save the optimized image to a file (async)
+   * @param outputPath - Path to save the output file
+   */
+  save(outputPath: string): Promise<void>;
+
+  /**
+   * Save the optimized image to a file (sync)
+   * @param outputPath - Path to save the output file
+   */
+  saveSync(outputPath: string): void;
 }
 
 /**
